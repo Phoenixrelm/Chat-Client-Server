@@ -10,7 +10,7 @@ due Date: 4/4/14
 Title: Chat Client
 This client will be used to send messages to the server and receive them.
 ****IMPORTANT YOU NEED TO PUT THE IP OF THE COMPUTER THAT YOU ARE RUNNING THE SERVER ON****
-
+HOLA 
 */
 
 

@@ -5,12 +5,11 @@ import java.net.*;
 import java.io.*;
 
 /**
-Dev by: Ryan Mason, Arther Burgin, Chris Dumlao, Bre Dionne
-due Date: 4/4/14
+Dev by: Ryan Mason, Chris Dumlao
+due Date: 5/2/146
 Title: Chat Client
 This client will be used to send messages to the server and receive them.
 ****IMPORTANT YOU NEED TO PUT THE IP OF THE COMPUTER THAT YOU ARE RUNNING THE SERVER ON****
-HOLA 
 */
 
 
@@ -25,10 +24,37 @@ public class ChatClient{
    ObjectOutputStream out;
    InputStream is;
    ObjectInputStream ois;
+   JFrame frame = new JFrame("Network Protocol");
   
    public ChatClient(){
+  
+   ///////////////////Check Protocol///////////////////////
+    Object[] options = {"TCP/IP",
+                    "UDP"};
+    int n = JOptionPane.showOptionDialog(frame,
+    "Please Select a Protocol",
+    "Network Protocol",
+    JOptionPane.YES_NO_OPTION,
+    JOptionPane.QUESTION_MESSAGE,
+    null,     //do not use a custom Icon
+    options,  //the titles of buttons
+    options[0]); //default button title
    
+   //if press tcp
+    if (n == JOptionPane.YES_OPTION){
+      //make some if pressed tcp
+      System.out.println("hey look you pressed tcp");
+    }else if(n == JOptionPane.NO_OPTION){
+      System.out.println("hey look you pressed UDP");//pressed udp
+    }
+    else{
+      System.out.println("Hey you closed me :(");// pressed close
+      
+      System.exit(0);
+
+    }
    
+   ///////////////////Check Protocol///////////////////////
    
    //creation of the gui
       JFrame window = new JFrame();

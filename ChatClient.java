@@ -40,20 +40,6 @@ public class ChatClient{
     options,  //the titles of buttons
     options[0]); //default button title
    
-   //if press tcp
-    if (n == JOptionPane.YES_OPTION){
-      //make some if pressed tcp
-      System.out.println("hey look you pressed tcp");
-    }else if(n == JOptionPane.NO_OPTION){
-      System.out.println("hey look you pressed UDP");//pressed udp
-    }
-    else{
-      System.out.println("Hey you closed me :(");// pressed close
-      
-      System.exit(0);
-
-    }
-   
    ///////////////////Check Protocol///////////////////////
    
    //creation of the gui
@@ -98,11 +84,13 @@ public class ChatClient{
       window.pack();
       window.setLocationRelativeTo(null);
       window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-   
-   
-   
-   
-      try{
+ 
+      ////////////////////////////////TCP or UDP socket select///////////////////////////////////  
+      //if press tcp
+    if (n == JOptionPane.YES_OPTION){
+      //make some if pressed tcp Conmnect to server using TCP Socket
+      System.out.println("tcp Protocol");
+       try{
          s = new Socket(HOST, PORT);
          os = s.getOutputStream();
       
@@ -114,8 +102,78 @@ public class ChatClient{
       catch(IOException ioe){
       
       }
+    }else if(n == JOptionPane.NO_OPTION){
+      System.out.println("UDP Protocol");//pressed udp
       
       
+      
+      
+      try{
+         BufferedReader inFromUser =
+         new BufferedReader(
+         new InputStreamReader(System.in));
+
+      DatagramSocket clientSocket = new DatagramSocket();
+      byte[] sendData;
+
+      byte[] receiveData = new byte[1024];
+
+      String sentence = inFromUser.readLine();
+      InetAddress address = InetAddress.getByName(HOST);
+      sendData = sentence.getBytes();
+      DatagramPacket sendPacket = new DatagramPacket(sendData,
+                       sendData.length,
+                       address,
+                       PORT);
+      clientSocket.send(sendPacket);
+
+
+
+
+      DatagramPacket receivePacket =
+         new DatagramPacket(receiveData, receiveData.length);
+
+      clientSocket.receive(receivePacket);
+      
+      
+
+      String modifiedSentence = new String(receivePacket.getData(),
+                                           0, receivePacket.getLength());
+
+      System.out.println("FROM SERVER: " + modifiedSentence);
+
+      clientSocket.close();
+          }
+      catch(UnknownHostException ukh){
+      
+      }
+      catch(IOException ioe){
+      
+      }
+
+      
+      
+      
+      
+      
+      
+      
+                  
+     
+    }
+    else{
+      System.out.println("Hey you closed me :(");// pressed close
+      
+      System.exit(0);
+
+    }
+ 
+      
+      
+      
+      
+      
+   //////////////////////////////////////////////////////////////////   
             
       sendButton.addActionListener(
             new ActionListener(){
@@ -123,13 +181,15 @@ public class ChatClient{
                public void actionPerformed(ActionEvent ae){
                
                  // TEXT_INPUT: takes in the users input and sends it to the server\
-                  String senderMsg = INPUT.getText();
+                  String senderMsg = null;
+                  senderMsg = INPUT.getText();
+                  if(senderMsg != "" || senderMsg != null){
                   try {
                      System.out.println("ABOUT TO SEND: " +senderMsg);
                      out.writeObject(senderMsg);
                      out.flush();
-                     INPUT.setText("");  
-                  }
+                     INPUT.setText("");
+                     }
                   catch(UnknownHostException uhe) {
                      append("Unable to connect to host.");
                   
@@ -137,6 +197,11 @@ public class ChatClient{
                   catch(IOException ie) {   
                   
                   }
+                  }
+                  else{
+                     System.out.println("CAN NOT SEND: " +senderMsg);
+                     }
+
                }
             });
      

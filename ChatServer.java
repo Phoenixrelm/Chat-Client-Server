@@ -132,6 +132,37 @@ public class ChatServer{
          catch(IOException ioe){
                   
          }
+         
+         
+         
+       //Make this in to a thread   
+         try{
+                   DatagramSocket serverSocket = new DatagramSocket(PORT);
+                       byte[] receiveData = new byte[1024];
+                       byte[] sendData = new byte[1024];                         
+                        System.out.println("COnnected?");                  
+
+
+                       while(true){                   
+                          DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
+                          serverSocket.receive(receivePacket);                   
+                          String sentence = new String( receivePacket.getData());                   
+                          System.out.println("RECEIVED: " + sentence);                  
+                          InetAddress IPAddress = receivePacket.getAddress();                  
+                          int port = receivePacket.getPort();                  
+                          String capitalizedSentence = sentence.toUpperCase();                  
+                          sendData = capitalizedSentence.getBytes();                   
+                          DatagramPacket sendPacket =                   
+                                         new DatagramPacket(sendData, sendData.length, IPAddress, port);                  
+                          serverSocket.send(sendPacket);               
+                       }                                       
+           }        
+         catch(IOException ioe){
+                  
+         }
+                                       
+
+         
       }
    } 
    
@@ -140,5 +171,5 @@ public class ChatServer{
       ip = ip.substring(1,ip.length());
    
       return ip;
-   }        
+   }                                            
 }

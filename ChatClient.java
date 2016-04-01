@@ -15,11 +15,12 @@ This client will be used to send messages to the server and receive them.
 
 public class ChatClient{
    private final int PORT = 16789;
-   private final String  HOST = "localhost";
+   private String  HOST = "Localhost";
    final JTextArea LOG;
    final JTextField INPUT;
    JPanel panel;
    Socket s;
+   DatagramSocket clientSocket;
    OutputStream os;
    ObjectOutputStream out;
    InputStream is;
@@ -39,6 +40,10 @@ public class ChatClient{
     null,     //do not use a custom Icon
     options,  //the titles of buttons
     options[0]); //default button title
+    
+    
+    HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
+    System.out.println("HOST = "+HOST);
    
    ///////////////////Check Protocol///////////////////////
    
@@ -113,53 +118,13 @@ public class ChatClient{
          new BufferedReader(
          new InputStreamReader(System.in));
 
-      DatagramSocket clientSocket = new DatagramSocket();
-      byte[] sendData;
-
+      clientSocket = new DatagramSocket();
       byte[] receiveData = new byte[1024];
 
       String sentence = inFromUser.readLine();
-      InetAddress address = InetAddress.getByName(HOST);
-      sendData = sentence.getBytes();
-      DatagramPacket sendPacket = new DatagramPacket(sendData,
-                       sendData.length,
-                       address,
-                       PORT);
-      clientSocket.send(sendPacket);
-
-
-
-
-      DatagramPacket receivePacket =
-         new DatagramPacket(receiveData, receiveData.length);
-
-      clientSocket.receive(receivePacket);
-      
-      
-
-      String modifiedSentence = new String(receivePacket.getData(),
-                                           0, receivePacket.getLength());
-
-      System.out.println("FROM SERVER: " + modifiedSentence);
-
-      clientSocket.close();
-          }
-      catch(UnknownHostException ukh){
-      
       }
-      catch(IOException ioe){
-      
-      }
-
-      
-      
-      
-      
-      
-      
-      
-                  
-     
+      catch(UnknownHostException ukh){ }
+      catch(IOException ioe){ }             
     }
     else{
       System.out.println("Hey you closed me :(");// pressed close
@@ -183,24 +148,69 @@ public class ChatClient{
                  // TEXT_INPUT: takes in the users input and sends it to the server\
                   String senderMsg = null;
                   senderMsg = INPUT.getText();
-                  if(senderMsg != "" || senderMsg != null){
-                  try {
-                     System.out.println("ABOUT TO SEND: " +senderMsg);
-                     out.writeObject(senderMsg);
-                     out.flush();
-                     INPUT.setText("");
+                   if(senderMsg != "" || senderMsg != null){
+                     if(n == JOptionPane.YES_OPTION)   
+                        try {
+                           System.out.println("ABOUT TO SEND: " +senderMsg);
+                           out.writeObject(senderMsg);
+                           out.flush();
+                           INPUT.setText("");
+                           }
+                        catch(UnknownHostException uhe) {
+                           append("Unable to connect to host.");
+                        
+                        }
+                        catch(IOException ie) {   
+                        
+                        }                        
+                      else if(n == JOptionPane.NO_OPTION){
+                          try {
+                               byte[] sendData = senderMsg.getBytes();
+                               InetAddress address = InetAddress.getByName(HOST);
+         
+                               DatagramPacket sendPacket = new DatagramPacket(sendData,sendData.length, address,PORT);
+                               
+                               System.out.println("ABOUT TO SEND: " +sendPacket+ "NO Function to send");
+                               
+                                clientSocket.send(sendPacket);
+            
+                                // DatagramPacket receivePacket =
+                                //    new DatagramPacket(receiveData, receiveData.length);
+                           
+                                // clientSocket.receive(receivePacket);
+                                 
+                                 
+                           
+                                 //String modifiedSentence = new String(receivePacket.getData(),
+                                                                    //  0, receivePacket.getLength());
+                           
+                                // System.out.println("FROM SERVER: " + modifiedSentence);
+                           
+                                 clientSocket.close();
+                          }
+                          catch(UnknownHostException uhe) {
+                                 append("Unable to connect to host.");
+                        
+                          }
+                           catch(IOException ie) {   
+                        
+                          }
+   
+                      }
+                      else{
+                      }           
+                     
+                     
+                     
                      }
-                  catch(UnknownHostException uhe) {
-                     append("Unable to connect to host.");
-                  
-                  }
-                  catch(IOException ie) {   
-                  
-                  }
-                  }
                   else{
                      System.out.println("CAN NOT SEND: " +senderMsg);
-                     }
+                  }
+                     
+                     
+                     
+                     
+                     
 
                }
             });

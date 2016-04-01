@@ -16,6 +16,7 @@ This Server will be used to receive messages from the client and then send it to
 public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
+   DatagramSocket ds = null;
    Object message;
    
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
@@ -49,18 +50,28 @@ public class ChatServer{
       window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
          //end of gui
      
+     //CREATE THEADS FOR TCP AND UDP 
      
+     //Create two threads
+     //Create serverSocket in one
+     //Create DatagramSocket in other
      
+     //Exicite code 
+     
+     //While true accpet incoming 
      
       try{
-         ss = new ServerSocket(16789);
+         //tcp
+         ss = new ServerSocket(PORT);       
          Socket cs = null;
          String ip;
+         //udp
+         ds = new DatagramSocket(PORT); 
+   
          
          // waits for client to connect, starts thread, adds to client Vector
          while(true){
-            cs = ss.accept();
-         
+            cs = ss.accept();         
             ClientThread ct = new ClientThread(cs);
             ct.start();
             ctVector.add(ct);
@@ -105,6 +116,7 @@ public class ChatServer{
             while(true){    
                // read the objects from ois to obj
                obj = ois.readObject(); 
+       
             
             // Determine what kind of object we got
                if(obj instanceof String){
@@ -122,45 +134,36 @@ public class ChatServer{
                      catch(IOException ioe){
                         System.out.println("Client Disconnected #"  + i);
                         clients.remove(i);
+                        
                      }         
                   }  
                }
-            }
-         }
-         catch(ClassNotFoundException CNFE){
-         }
-         catch(IOException ioe){
-                  
-         }
-         
-         
-         
-       //Make this in to a thread   
-         try{
-                   DatagramSocket serverSocket = new DatagramSocket(PORT);
-                       byte[] receiveData = new byte[1024];
-                       byte[] sendData = new byte[1024];                         
-                        System.out.println("COnnected?");                  
-
-
-                       while(true){                   
+  ///////////////////////////////////////////////////////////////////////////// 
+                          byte[] receiveData = new byte[1024];
+                          byte[] sendData = new byte[1024];             
                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
-                          serverSocket.receive(receivePacket);                   
+                         
+                          ds.receive(receivePacket);  
+                                           
                           String sentence = new String( receivePacket.getData());                   
-                          System.out.println("RECEIVED: " + sentence);                  
+                          System.out.println("RECEIVED: " + sentence);    
+                                        
                           InetAddress IPAddress = receivePacket.getAddress();                  
                           int port = receivePacket.getPort();                  
                           String capitalizedSentence = sentence.toUpperCase();                  
                           sendData = capitalizedSentence.getBytes();                   
                           DatagramPacket sendPacket =                   
                                          new DatagramPacket(sendData, sendData.length, IPAddress, port);                  
-                          serverSocket.send(sendPacket);               
-                       }                                       
-           }        
+                          ds.send(sendPacket);     
+               
+               
+            }
+         }
+         catch(ClassNotFoundException CNFE){
+         }
          catch(IOException ioe){
                   
-         }
-                                       
+        }                                       
 
          
       }

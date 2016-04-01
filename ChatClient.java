@@ -26,6 +26,7 @@ public class ChatClient{
    InputStream is;
    ObjectInputStream ois;
    JFrame frame = new JFrame("Network Protocol");
+   String protocol = null;
   
    public ChatClient(){
   
@@ -93,6 +94,7 @@ public class ChatClient{
       ////////////////////////////////TCP or UDP socket select///////////////////////////////////  
       //if press tcp
     if (n == JOptionPane.YES_OPTION){
+       protocol = "tcp";
       //make some if pressed tcp Conmnect to server using TCP Socket
       System.out.println("tcp Protocol");
        try{
@@ -105,20 +107,15 @@ public class ChatClient{
       
       }
       catch(IOException ioe){
-      
       }
     }else if(n == JOptionPane.NO_OPTION){
-      System.out.println("UDP Protocol");//pressed udp
-      
-      
-      
-      
       try{
-         BufferedReader inFromUser =
-         new BufferedReader(
-         new InputStreamReader(System.in));
+       protocol = "udp";
+       clientSocket = new DatagramSocket();
+       sendButton.setEnabled(true);
 
-      clientSocket = new DatagramSocket();
+      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+
       byte[] receiveData = new byte[1024];
 
       String sentence = inFromUser.readLine();
@@ -149,7 +146,7 @@ public class ChatClient{
                   String senderMsg = null;
                   senderMsg = INPUT.getText();
                    if(senderMsg != "" || senderMsg != null){
-                     if(n == JOptionPane.YES_OPTION)   
+                     if(protocol == "tcp")   
                         try {
                            System.out.println("ABOUT TO SEND: " +senderMsg);
                            out.writeObject(senderMsg);
@@ -163,7 +160,9 @@ public class ChatClient{
                         catch(IOException ie) {   
                         
                         }                        
-                      else if(n == JOptionPane.NO_OPTION){
+                      else if(protocol == "udp"){
+                     System.out.println("UDP Send button");//pressed udp
+
                           try {
                                byte[] sendData = senderMsg.getBytes();
                                InetAddress address = InetAddress.getByName(HOST);

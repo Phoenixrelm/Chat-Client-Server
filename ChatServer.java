@@ -66,7 +66,7 @@ public class ChatServer{
          Socket cs = null;
          String ip;
          //udp
-         ds = new DatagramSocket(PORT); 
+         //ds = new DatagramSocket(PORT); 
    
          
          // waits for client to connect, starts thread, adds to client Vector
@@ -139,11 +139,15 @@ public class ChatServer{
                   }  
                }
   ///////////////////////////////////////////////////////////////////////////// 
+  
+  /*                        System.out.println("Check 1 before");                         
                           byte[] receiveData = new byte[1024];
                           byte[] sendData = new byte[1024];             
                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
-                         
+                          System.out.println("Check 2 dp packet");                         
+
                           ds.receive(receivePacket);  
+                          System.out.println("Check 3recieved");                         
                                            
                           String sentence = new String( receivePacket.getData());                   
                           System.out.println("RECEIVED: " + sentence);    
@@ -153,10 +157,10 @@ public class ChatServer{
                           String capitalizedSentence = sentence.toUpperCase();                  
                           sendData = capitalizedSentence.getBytes();                   
                           DatagramPacket sendPacket =                   
-                                         new DatagramPacket(sendData, sendData.length, IPAddress, port);                  
+                          new DatagramPacket(sendData, sendData.length, IPAddress, port);                  
                           ds.send(sendPacket);     
                
-               
+ */              
             }
          }
          catch(ClassNotFoundException CNFE){

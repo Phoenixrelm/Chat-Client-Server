@@ -160,7 +160,7 @@ public class ChatClient{
                         catch(IOException ie) {   
                         
                         }                        
-                      else if(protocol == "udp"){
+                  else if(protocol == "udp"){
                      System.out.println("UDP Send button");//pressed udp
 
                           try {
@@ -196,8 +196,8 @@ public class ChatClient{
                           }
    
                       }
-                      else{
-                      }           
+ 
+                        
                      
                      
                      

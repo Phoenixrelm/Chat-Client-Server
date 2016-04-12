@@ -26,8 +26,7 @@ public class ChatServer{
 
    
    public ChatServer(){
-     
-   
+         
      //server GUI
       JFrame window = new JFrame();
       JPanel middle = new JPanel(new GridLayout(1,1));
@@ -48,7 +47,7 @@ public class ChatServer{
       window.pack();
       window.setLocationRelativeTo(null);
       window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         //end of gui
+      //end of gui
      
      //CREATE THEADS FOR TCP AND UDP 
      
@@ -67,15 +66,20 @@ public class ChatServer{
          String ip;
          //udp
          //ds = new DatagramSocket(PORT); 
-   
+      
          
          // waits for client to connect, starts thread, adds to client Vector
          while(true){
+                        
+            UDPThread udpThread = new UDPThread();
+            udpThread.start();
+         
             cs = ss.accept();         
             ClientThread ct = new ClientThread(cs);
             ct.start();
             ctVector.add(ct);
             System.out.println("Message from " +getIP(cs));
+            
          }
       }
       catch(IOException ioe){
@@ -96,6 +100,7 @@ public class ChatServer{
          this.cs = cs;
       }
          
+   
       public void run() {
          
          OutputStream os;
@@ -113,10 +118,11 @@ public class ChatServer{
                      
             //print it to the client socket
              
+                      
             while(true){    
                // read the objects from ois to obj
                obj = ois.readObject(); 
-       
+            
             
             // Determine what kind of object we got
                if(obj instanceof String){
@@ -137,41 +143,59 @@ public class ChatServer{
                         
                      }         
                   }  
-               }
-  ///////////////////////////////////////////////////////////////////////////// 
-  
-  /*                        System.out.println("Check 1 before");                         
-                          byte[] receiveData = new byte[1024];
-                          byte[] sendData = new byte[1024];             
-                          DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
-                          System.out.println("Check 2 dp packet");                         
-
-                          ds.receive(receivePacket);  
-                          System.out.println("Check 3recieved");                         
-                                           
-                          String sentence = new String( receivePacket.getData());                   
-                          System.out.println("RECEIVED: " + sentence);    
-                                        
-                          InetAddress IPAddress = receivePacket.getAddress();                  
-                          int port = receivePacket.getPort();                  
-                          String capitalizedSentence = sentence.toUpperCase();                  
-                          sendData = capitalizedSentence.getBytes();                   
-                          DatagramPacket sendPacket =                   
-                          new DatagramPacket(sendData, sendData.length, IPAddress, port);                  
-                          ds.send(sendPacket);     
-               
- */              
+               }         
             }
          }
          catch(ClassNotFoundException CNFE){
          }
          catch(IOException ioe){
                   
-        }                                       
-
+         }                                       
+      
          
-      }
+      } 
+      
+      
    } 
+   
+   class UDPThread extends Thread {    
+
+            public void run() {
+                  System.out.println("UDP Thread Started");
+               try{          
+                  DatagramSocket serverSocket = new DatagramSocket(16789);             
+                  byte[] receiveData = new byte[1024];             
+                  byte[] sendData = new byte[1024];            
+                  while(true)                
+                  {                   
+                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
+                  
+                     serverSocket.receive(receivePacket);
+                       
+                     String sentence = new String( receivePacket.getData());                   
+                     System.out.println("RECEIVED: " + sentence);                   
+                     InetAddress IPAddress = receivePacket.getAddress();                   
+                     int port = receivePacket.getPort();                   
+                     String capitalizedSentence = sentence.toUpperCase();                   
+                     sendData = capitalizedSentence.getBytes();                   
+                     DatagramPacket sendPacket =                   
+                        new DatagramPacket(sendData, sendData.length, IPAddress, port);                                 
+                     serverSocket.send(sendPacket);                
+                  }   
+               }
+               catch(IOException ioe){
+                  
+               }  
+               
+               
+                   
+            } 
+  
+   }  
+   
+   
+   
+   
    
    public String getIP(Socket s){
       String ip = s.getInetAddress().toString();

@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*; 
 
-class UDPServer {    
+class UDPThread {    
 
 public static void main(String args[]) throws Exception       
 {          
@@ -25,4 +25,7 @@ public static void main(String args[]) throws Exception
     serverSocket.send(sendPacket);                
     }       
    } 
-  }
+  }t.start();  
+  
+  
+  

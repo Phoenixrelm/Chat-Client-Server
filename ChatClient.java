@@ -29,22 +29,22 @@ public class ChatClient{
    String protocol = null;
   
    public ChatClient(){
-  
+   
    ///////////////////Check Protocol///////////////////////
-    Object[] options = {"TCP/IP",
+      Object[] options = {"TCP/IP",
                     "UDP"};
-    int n = JOptionPane.showOptionDialog(frame,
-    "Please Select a Protocol",
-    "Network Protocol",
-    JOptionPane.YES_NO_OPTION,
-    JOptionPane.QUESTION_MESSAGE,
-    null,     //do not use a custom Icon
-    options,  //the titles of buttons
-    options[0]); //default button title
+      int n = JOptionPane.showOptionDialog(frame,
+         "Please Select a Protocol",
+         "Network Protocol",
+         JOptionPane.YES_NO_OPTION,
+         JOptionPane.QUESTION_MESSAGE,
+         null,     //do not use a custom Icon
+         options,  //the titles of buttons
+         options[0]); //default button title
     
     
-    HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
-    System.out.println("HOST = "+HOST);
+      HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
+      System.out.println("HOST = "+HOST);
    
    ///////////////////Check Protocol///////////////////////
    
@@ -65,7 +65,7 @@ public class ChatClient{
       fileMenu.add(exitMenu);
       
       window.setJMenuBar(menuBar);
-
+   
    
    
    // Log (main text on top)
@@ -90,46 +90,47 @@ public class ChatClient{
       window.pack();
       window.setLocationRelativeTo(null);
       window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
- 
+   
       ////////////////////////////////TCP or UDP socket select///////////////////////////////////  
       //if press tcp
-    if (n == JOptionPane.YES_OPTION){
-       protocol = "tcp";
+      if (n == JOptionPane.YES_OPTION){
+         protocol = "tcp";
       //make some if pressed tcp Conmnect to server using TCP Socket
-      System.out.println("tcp Protocol");
-       try{
-         s = new Socket(HOST, PORT);
-         os = s.getOutputStream();
+         System.out.println("tcp Protocol");
+         try{
+            s = new Socket(HOST, PORT);
+            os = s.getOutputStream();
+         
+            sendButton.setEnabled(true);
+         }
+         catch(UnknownHostException ukh){
+         
+         }
+         catch(IOException ioe){
+         }
+      }
+      else if(n == JOptionPane.NO_OPTION){
+         try{
+            protocol = "udp";
+            clientSocket = new DatagramSocket();
+            sendButton.setEnabled(true);
+         
+            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+         
+            byte[] receiveData = new byte[1024];
+         
+            String sentence = inFromUser.readLine();
+         }
+         catch(UnknownHostException ukh){ }
+         catch(IOException ioe){ }             
+      }
+      else{
+         System.out.println("Hey you closed me :(");// pressed close
       
-         sendButton.setEnabled(true);
-      }
-      catch(UnknownHostException ukh){
+         System.exit(0);
       
       }
-      catch(IOException ioe){
-      }
-    }else if(n == JOptionPane.NO_OPTION){
-      try{
-       protocol = "udp";
-       clientSocket = new DatagramSocket();
-       sendButton.setEnabled(true);
-
-      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-
-      byte[] receiveData = new byte[1024];
-
-      String sentence = inFromUser.readLine();
-      }
-      catch(UnknownHostException ukh){ }
-      catch(IOException ioe){ }             
-    }
-    else{
-      System.out.println("Hey you closed me :(");// pressed close
-      
-      System.exit(0);
-
-    }
- 
+   
       
       
       
@@ -144,15 +145,17 @@ public class ChatClient{
                
                  // TEXT_INPUT: takes in the users input and sends it to the server\
                   String senderMsg = null;
+                  
                   senderMsg = INPUT.getText();
-                   if(senderMsg != "" || senderMsg != null){
+                  
+                  if(senderMsg != "" || senderMsg != null){
                      if(protocol == "tcp")   
                         try {
                            System.out.println("ABOUT TO SEND: " +senderMsg);
                            out.writeObject(senderMsg);
                            out.flush();
                            INPUT.setText("");
-                           }
+                        }
                         catch(UnknownHostException uhe) {
                            append("Unable to connect to host.");
                         
@@ -160,48 +163,37 @@ public class ChatClient{
                         catch(IOException ie) {   
                         
                         }                        
-                  else if(protocol == "udp"){
-                     System.out.println("UDP Send button");//pressed udp
-
-                          try {
-                               byte[] sendData = senderMsg.getBytes();
-                               InetAddress address = InetAddress.getByName(HOST);
-         
-                               DatagramPacket sendPacket = new DatagramPacket(sendData,sendData.length, address,PORT);
-                               
-                               System.out.println("ABOUT TO SEND: " +sendPacket+ "NO Function to send");
-                               
-                                clientSocket.send(sendPacket);
-            
-                                // DatagramPacket receivePacket =
-                                //    new DatagramPacket(receiveData, receiveData.length);
-                           
-                                // clientSocket.receive(receivePacket);
-                                 
-                                 
-                           
-                                 //String modifiedSentence = new String(receivePacket.getData(),
-                                                                    //  0, receivePacket.getLength());
-                           
-                                // System.out.println("FROM SERVER: " + modifiedSentence);
-                           
-                                 clientSocket.close();
-                          }
-                          catch(UnknownHostException uhe) {
-                                 append("Unable to connect to host.");
-                        
-                          }
-                           catch(IOException ie) {   
-                        
-                          }
-   
-                      }
- 
-                        
+                     else if(protocol == "udp"){
+                        System.out.println("UDP Send button");//pressed udp
                      
-                     
+                        try {      
+                           BufferedReader inFromUser =
+                              new BufferedReader(new InputStreamReader(System.in));       
+                           DatagramSocket clientSocket = new DatagramSocket();       
+                           InetAddress IPAddress = InetAddress.getByName("localhost");       
+                           byte[] sendData = new byte[1024];       byte[] receiveData = new byte[1024];      
+                           String sentence = inFromUser.readLine();       
+                           sendData = sentence.getBytes();       
+                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 16789);       
+                           clientSocket.send(sendPacket);       
+                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
+                           clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
+                           System.out.println("FROM SERVER:" + modifiedSentence);       clientSocket.close();                           }
+                        catch(UnknownHostException uhe) {
+                           append("Unable to connect to host.");
+                        
+                        }
+                        catch(IOException ie) {   
+                        
+                        }
                      
                      }
+                  
+                        
+                     
+                     
+                     
+                  }
                   else{
                      System.out.println("CAN NOT SEND: " +senderMsg);
                   }
@@ -210,7 +202,7 @@ public class ChatClient{
                      
                      
                      
-
+               
                }
             });
      

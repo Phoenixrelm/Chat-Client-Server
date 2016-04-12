@@ -70,7 +70,7 @@ public class ChatServer{
          
          // waits for client to connect, starts thread, adds to client Vector
          while(true){
-                        
+            
             UDPThread udpThread = new UDPThread();
             udpThread.start();
          
@@ -159,38 +159,40 @@ public class ChatServer{
    } 
    
    class UDPThread extends Thread {    
-
-            public void run() {
-                  System.out.println("UDP Thread Started");
-               try{          
-                  DatagramSocket serverSocket = new DatagramSocket(16789);             
-                  byte[] receiveData = new byte[1024];             
-                  byte[] sendData = new byte[1024];            
-                  while(true)                
-                  {                   
-                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
+   
+      public void run() {
+         System.out.println("UDP Thread Started");
+         try{          
+            DatagramSocket serverSocket = new DatagramSocket(16789);             
+            byte[] receiveData = null;             
+            byte[] sendData = null;            
+            while(true)                
+            {  
+               receiveData = new byte[1024];             
+               sendData = new byte[1024];                  
+               DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
                   
-                     serverSocket.receive(receivePacket);
+               serverSocket.receive(receivePacket);
                        
-                     String sentence = new String( receivePacket.getData());                   
-                     System.out.println("RECEIVED: " + sentence);                   
-                     InetAddress IPAddress = receivePacket.getAddress();                   
-                     int port = receivePacket.getPort();                   
-                     String capitalizedSentence = sentence.toUpperCase();                   
-                     sendData = capitalizedSentence.getBytes();                   
-                     DatagramPacket sendPacket =                   
+               String sentence = new String( receivePacket.getData());                   
+               System.out.println("RECEIVED: " + sentence);                   
+               InetAddress IPAddress = receivePacket.getAddress();                   
+               int port = receivePacket.getPort();                   
+               sendData = sentence.getBytes();                   
+               DatagramPacket sendPacket =                   
                         new DatagramPacket(sendData, sendData.length, IPAddress, port);                                 
-                     serverSocket.send(sendPacket);                
-                  }   
-               }
-               catch(IOException ioe){
+               serverSocket.send(sendPacket);   
+                                  
+            }   
+         }
+         catch(IOException ioe){
                   
-               }  
+         }  
                
                
                    
-            } 
-  
+      } 
+   
    }  
    
    

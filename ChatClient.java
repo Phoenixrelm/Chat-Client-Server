@@ -20,7 +20,6 @@ public class ChatClient{
    final JTextField INPUT;
    JPanel panel;
    Socket s;
-   DatagramSocket clientSocket;
    OutputStream os;
    ObjectOutputStream out;
    InputStream is;
@@ -44,7 +43,8 @@ public class ChatClient{
     
     
       HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
-      System.out.println("HOST = "+HOST);
+      
+      System.out.println("HOST = "+ HOST);
    
    ///////////////////Check Protocol///////////////////////
    
@@ -110,19 +110,9 @@ public class ChatClient{
          }
       }
       else if(n == JOptionPane.NO_OPTION){
-         try{
-            protocol = "udp";
-            clientSocket = new DatagramSocket();
-            sendButton.setEnabled(true);
-         
-            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-         
-            byte[] receiveData = new byte[1024];
-         
-            String sentence = inFromUser.readLine();
-         }
-         catch(UnknownHostException ukh){ }
-         catch(IOException ioe){ }             
+      
+         protocol = "udp";
+         sendButton.setEnabled(true);            
       }
       else{
          System.out.println("Hey you closed me :(");// pressed close
@@ -147,60 +137,51 @@ public class ChatClient{
                   String senderMsg = null;
                   
                   senderMsg = INPUT.getText();
-                  
-                  if(senderMsg != "" || senderMsg != null){
-                     if(protocol == "tcp")   
-                        try {
-                           System.out.println("ABOUT TO SEND: " +senderMsg);
-                           out.writeObject(senderMsg);
-                           out.flush();
-                           INPUT.setText("");
-                        }
-                        catch(UnknownHostException uhe) {
-                           append("Unable to connect to host.");
-                        
-                        }
-                        catch(IOException ie) {   
-                        
-                        }                        
-                     else if(protocol == "udp"){
-                        System.out.println("UDP Send button");//pressed udp
-                     
-                        try {      
-                           BufferedReader inFromUser =
-                              new BufferedReader(new InputStreamReader(System.in));       
-                           DatagramSocket clientSocket = new DatagramSocket();       
-                           InetAddress IPAddress = InetAddress.getByName("localhost");       
-                           byte[] sendData = new byte[1024];       byte[] receiveData = new byte[1024];      
-                           String sentence = inFromUser.readLine();       
-                           sendData = sentence.getBytes();       
-                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 16789);       
-                           clientSocket.send(sendPacket);       
-                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
-                           clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
-                           System.out.println("FROM SERVER:" + modifiedSentence);       clientSocket.close();                           }
-                        catch(UnknownHostException uhe) {
-                           append("Unable to connect to host.");
-                        
-                        }
-                        catch(IOException ie) {   
-                        
-                        }
-                     
+                  if(protocol == "tcp")   
+                     try {
+                        System.out.println("ABOUT TO SEND: " +senderMsg);
+                        out.writeObject(senderMsg);
+                        out.flush();
+                        INPUT.setText("");
                      }
-                  
+                     catch(UnknownHostException uhe) {
+                        append("Unable to connect to host.");
                         
+                     }
+                     catch(IOException ie) {   
+                        
+                     }                        
+                  else if(protocol.equals("udp") ){
+                     System.out.println("UDP Send button");//pressed udp
                      
-                     
+                     try {      
+                        BufferedReader inFromUser =
+                              new BufferedReader(new InputStreamReader(System.in));       
+                        DatagramSocket clientSocket = new DatagramSocket();       
+                        InetAddress IPAddress = InetAddress.getByName("localhost");       
+                        byte[] sendData = new byte[1024];
+                        byte[] receiveData = new byte[1024];      
+                        String sentence = senderMsg;       
+                        sendData = sentence.getBytes();       
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 16789);       
+                        clientSocket.send(sendPacket);       
+                        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
+                        clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
+                        System.out.println("FROM SERVER:" + modifiedSentence);      
+                        clientSocket.close();   
+                        append(modifiedSentence);   
+                        INPUT.setText("");
+                 
+                     }
+                     catch(UnknownHostException uhe) {
+                        append("Unable to connect to host.");
+                        
+                     }
+                     catch(IOException ie) {   
+                        
+                     }
                      
                   }
-                  else{
-                     System.out.println("CAN NOT SEND: " +senderMsg);
-                  }
-                     
-                     
-                     
-                     
                      
                
                }
@@ -243,6 +224,8 @@ public class ChatClient{
       }
       catch(ClassNotFoundException cnfe){
          append(" 2" +cnfe.getMessage());
+      }
+      catch(NullPointerException npe){
       }
    
    }

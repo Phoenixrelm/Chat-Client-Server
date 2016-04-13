@@ -53,7 +53,7 @@ public class ChatClient{
       panel = new JPanel(new BorderLayout());
       JButton sendButton = new JButton("Send");
       sendButton.setEnabled(false);
-   
+      window.getRootPane().setDefaultButton(sendButton);
    
    
       JMenuBar menuBar = new JMenuBar();
@@ -76,9 +76,20 @@ public class ChatClient{
       
       // INPUT (user input on bottom)
       INPUT = new JTextField();
+      window.addWindowListener( 
+         new WindowAdapter() {
+            public void windowOpened( WindowEvent e ){
+               INPUT.requestFocus();
+            }
+         }); 
       JScrollPane scrollPaneINPUT = new JScrollPane(INPUT);
       INPUT.setMinimumSize(new Dimension(250, 10));
       INPUT.setPreferredSize(new Dimension(250, 10));   
+      
+
+      
+      
+      
       
       panel.add(scrollPaneLOG , BorderLayout.NORTH);
       panel.add(scrollPaneINPUT , BorderLayout.CENTER);
@@ -158,12 +169,12 @@ public class ChatClient{
                         BufferedReader inFromUser =
                               new BufferedReader(new InputStreamReader(System.in));       
                         DatagramSocket clientSocket = new DatagramSocket();       
-                        InetAddress IPAddress = InetAddress.getByName("localhost");       
+                        InetAddress IPAddress = InetAddress.getByName(HOST);       
                         byte[] sendData = new byte[1024];
                         byte[] receiveData = new byte[1024];      
                         String sentence = senderMsg;       
                         sendData = sentence.getBytes();       
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 16789);       
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);       
                         clientSocket.send(sendPacket);       
                         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
                         clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
@@ -171,7 +182,7 @@ public class ChatClient{
                         clientSocket.close();   
                         append(modifiedSentence);   
                         INPUT.setText("");
-                 
+                     
                      }
                      catch(UnknownHostException uhe) {
                         append("Unable to connect to host.");

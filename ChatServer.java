@@ -74,6 +74,7 @@ public class ChatServer{
             UDPThread udpThread = new UDPThread();
             udpThread.start();
          
+         
             cs = ss.accept();         
             ClientThread ct = new ClientThread(cs);
             ct.start();
@@ -163,7 +164,7 @@ public class ChatServer{
       public void run() {
          System.out.println("UDP Thread Started");
          try{          
-            DatagramSocket serverSocket = new DatagramSocket(16789);             
+            DatagramSocket datagramSocket = new DatagramSocket(PORT);             
             byte[] receiveData = null;             
             byte[] sendData = null;            
             while(true)                
@@ -172,16 +173,17 @@ public class ChatServer{
                sendData = new byte[1024];                  
                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
                   
-               serverSocket.receive(receivePacket);
+               datagramSocket.receive(receivePacket);
                        
-               String sentence = new String( receivePacket.getData());                   
+               String sentence = new String( receivePacket.getData());   
+               sentence = timeStamp+": " +sentence;                
                System.out.println("RECEIVED: " + sentence);                   
                InetAddress IPAddress = receivePacket.getAddress();                   
                int port = receivePacket.getPort();                   
                sendData = sentence.getBytes();                   
                DatagramPacket sendPacket =                   
                         new DatagramPacket(sendData, sendData.length, IPAddress, port);                                 
-               serverSocket.send(sendPacket);   
+               datagramSocket.send(sendPacket);   
                                   
             }   
          }

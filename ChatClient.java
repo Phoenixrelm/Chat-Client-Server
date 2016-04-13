@@ -86,7 +86,7 @@ public class ChatClient{
       INPUT.setMinimumSize(new Dimension(250, 10));
       INPUT.setPreferredSize(new Dimension(250, 10));   
       
-
+   
       
       
       
@@ -148,53 +148,59 @@ public class ChatClient{
                   String senderMsg = null;
                   
                   senderMsg = INPUT.getText();
-                  if(protocol == "tcp")   
-                     try {
-                        System.out.println("ABOUT TO SEND: " +senderMsg);
-                        out.writeObject(senderMsg);
-                        out.flush();
-                        INPUT.setText("");
-                     }
-                     catch(UnknownHostException uhe) {
-                        append("Unable to connect to host.");
-                        
-                     }
-                     catch(IOException ie) {   
-                        
-                     }                        
-                  else if(protocol.equals("udp") ){
-                     System.out.println("UDP Send button");//pressed udp
-                     
-                     try {      
-                        BufferedReader inFromUser =
-                              new BufferedReader(new InputStreamReader(System.in));       
-                        DatagramSocket clientSocket = new DatagramSocket();       
-                        InetAddress IPAddress = InetAddress.getByName(HOST);       
-                        byte[] sendData = new byte[1024];
-                        byte[] receiveData = new byte[1024];      
-                        String sentence = senderMsg;       
-                        sendData = sentence.getBytes();       
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);       
-                        clientSocket.send(sendPacket);       
-                        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
-                        clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
-                        System.out.println("FROM SERVER:" + modifiedSentence);      
-                        clientSocket.close();   
-                        append(modifiedSentence);   
-                        INPUT.setText("");
-                     
-                     }
-                     catch(UnknownHostException uhe) {
-                        append("Unable to connect to host.");
-                        
-                     }
-                     catch(IOException ie) {   
-                        
-                     }
-                     
+                  if(senderMsg.length() == 0){
+                     System.out.println("ERROR: NoTextInputed");
+                  
                   }
+                  else{
+                     if(protocol == "tcp")   
+                        try {
+                           System.out.println("ABOUT TO SEND: " +senderMsg);
+                           out.writeObject(senderMsg);
+                           out.flush();
+                           INPUT.setText("");
+                        }
+                        catch(UnknownHostException uhe) {
+                           append("Unable to connect to host.");
+                        
+                        }
+                        catch(IOException ie) {   
+                        
+                        }                        
+                     else if(protocol.equals("udp") ){
+                        System.out.println("UDP Send button");//pressed udp
                      
-               
+                        try {      
+                           BufferedReader inFromUser =
+                              new BufferedReader(new InputStreamReader(System.in));       
+                           DatagramSocket clientSocket = new DatagramSocket();       
+                           InetAddress IPAddress = InetAddress.getByName(HOST);       
+                           byte[] sendData = new byte[1024];
+                           byte[] receiveData = new byte[1024];      
+                           String sentence = senderMsg;       
+                           sendData = sentence.getBytes();       
+                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);       
+                           clientSocket.send(sendPacket);       
+                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
+                           clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
+                           System.out.println("FROM SERVER:" + modifiedSentence);      
+                           clientSocket.close();   
+                           append(modifiedSentence);   
+                           INPUT.setText("");
+                        
+                        }
+                        catch(UnknownHostException uhe) {
+                           append("Unable to connect to host.");
+                        
+                        }
+                        catch(IOException ie) {   
+                        
+                        }
+                     
+                     }
+                     
+                  
+                  }
                }
             });
      

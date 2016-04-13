@@ -174,13 +174,18 @@ public class ChatServer{
                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
                   
                datagramSocket.receive(receivePacket);
-                       
+               InetAddress IPAddress = receivePacket.getAddress();   
+            
                String sentence = new String( receivePacket.getData());   
-               sentence = timeStamp+": " +sentence;                
-               System.out.println("RECEIVED: " + sentence);                   
-               InetAddress IPAddress = receivePacket.getAddress();                   
+               sentence = "("+timeStamp+") " + IPAddress+": " +sentence;                
+               System.out.println("RECEIVED: " + sentence);   
+                               
+                               
                int port = receivePacket.getPort();                   
-               sendData = sentence.getBytes();                   
+               
+               
+               sendData = sentence.getBytes();
+                                  
                DatagramPacket sendPacket =                   
                         new DatagramPacket(sendData, sendData.length, IPAddress, port);                                 
                datagramSocket.send(sendPacket);   

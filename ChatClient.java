@@ -150,7 +150,6 @@ public class ChatClient{
                   senderMsg = INPUT.getText();
                   if(senderMsg.length() == 0){
                      System.out.println("ERROR: NoTextInputed");
-                  
                   }
                   else{
                      if(protocol == "tcp")   

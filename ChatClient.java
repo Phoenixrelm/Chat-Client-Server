@@ -55,7 +55,6 @@ public class ChatClient{
       sendButton.setEnabled(false);
       window.getRootPane().setDefaultButton(sendButton);
    
-   
       JMenuBar menuBar = new JMenuBar();
      
       JMenu fileMenu = new JMenu("File");
@@ -65,8 +64,6 @@ public class ChatClient{
       fileMenu.add(exitMenu);
       
       window.setJMenuBar(menuBar);
-   
-   
    
    // Log (main text on top)
       LOG = new JTextArea();
@@ -86,15 +83,9 @@ public class ChatClient{
       INPUT.setMinimumSize(new Dimension(250, 10));
       INPUT.setPreferredSize(new Dimension(250, 10));   
       
-   
-      
-      
-      
-      
       panel.add(scrollPaneLOG , BorderLayout.NORTH);
       panel.add(scrollPaneINPUT , BorderLayout.CENTER);
       panel.add(sendButton , BorderLayout.EAST);
-      
           
       window.add(panel);
       window.setVisible(true);
@@ -114,31 +105,24 @@ public class ChatClient{
          
             sendButton.setEnabled(true);
          }
+         //Exceptions
          catch(UnknownHostException ukh){
-         
          }
          catch(IOException ioe){
          }
       }
       else if(n == JOptionPane.NO_OPTION){
-      
          protocol = "udp";
          sendButton.setEnabled(true);            
       }
       else{
          System.out.println("Hey you closed me :(");// pressed close
-      
          System.exit(0);
-      
       }
-   
-      
-      
-      
-      
-      
-   //////////////////////////////////////////////////////////////////   
-            
+
+      /*
+       * Send button event
+       */      
       sendButton.addActionListener(
             new ActionListener(){
             
@@ -146,86 +130,103 @@ public class ChatClient{
                
                  // TEXT_INPUT: takes in the users input and sends it to the server\
                   String senderMsg = null;
-                  
                   senderMsg = INPUT.getText();
+                  //Validates that a message was typed
                   if(senderMsg.length() == 0){
                      System.out.println("ERROR: NoTextInputed");
                   }
                   else{
-                     if(protocol == "tcp")   
+                     //Check which protocol
+                     //Check if TCP
+                     if(protocol == "tcp"){   
                         try {
+                           //See what message is about to be sent
                            System.out.println("ABOUT TO SEND: " +senderMsg);
+                           
+                           //Send message to outputstream
                            out.writeObject(senderMsg);
+                           //Clear the buffer
                            out.flush();
+                           
+                           //reset output field
                            INPUT.setText("");
                         }
                         catch(UnknownHostException uhe) {
-                           append("Unable to connect to host.");
-                        
+                           append("Unable to connect to host."); 
                         }
                         catch(IOException ie) {   
-                        
-                        }                        
+                           append("Unable to send message"); 
+                        }
+                     }
+                     //Checks if UDP                        
                      else if(protocol.equals("udp") ){
                         System.out.println("UDP Send button");//pressed udp
                      
-                        try {      
+                        try {
+                           //Input      
                            BufferedReader inFromUser =
-                              new BufferedReader(new InputStreamReader(System.in));       
-                           DatagramSocket clientSocket = new DatagramSocket();       
-                           InetAddress IPAddress = InetAddress.getByName(HOST);       
-                           byte[] sendData = new byte[1024];
-                           byte[] receiveData = new byte[1024];      
-                           String sentence = senderMsg;       
-                           sendData = sentence.getBytes();       
-                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);       
-                           clientSocket.send(sendPacket);       
+                              new BufferedReader(new InputStreamReader(System.in));
+                           //datagram socket for receiving messages       
+                           DatagramSocket clientSocket = new DatagramSocket();
+                           //IP being used       
+                           InetAddress IPAddress = InetAddress.getByName(HOST);
+                                  
+                           byte[] sendData    =  new byte[1024];
+                           byte[] receiveData =  new byte[1024];      
+                           String sentence    =  senderMsg;
+                                  
+                           sendData = sentence.getBytes();
+                           
+                           //Create a packet to be sent       
+                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);
+                           //Send message from client       
+                           clientSocket.send( sendPacket );
+                                  
+                           //--
                            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
-                           clientSocket.receive(receivePacket);       String modifiedSentence = new String(receivePacket.getData());      
-                           System.out.println("FROM SERVER:" + modifiedSentence);      
-                           clientSocket.close();   
-                           append(modifiedSentence);   
-                           INPUT.setText("");
-                        
+                           clientSocket.receive( receivePacket );       
+                           
+                           String modifiedSentence = new String( receivePacket.getData() );      
+                           System.out.println("FROM SERVER:" + modifiedSentence);
+                                 
+                           //Close connection
+                           clientSocket.close();
+                           
+                           //Append message to window   
+                           append(modifiedSentence);
+                           //Clear input field   
+                           INPUT.setText(""); 
                         }
                         catch(UnknownHostException uhe) {
                            append("Unable to connect to host.");
-                        
                         }
                         catch(IOException ie) {   
-                        
-                        }
-                     
-                     }
-                     
-                  
-                  }
-               }
+                           append("Unable to send message");
+                        } 
+                     }//end of if else(udp)
+                  }//End of else
+               }//end of Action Performed
             });
      
+      //Exit Client
       exitMenu.addActionListener(
-            new ActionListener(){
-            
+            new ActionListener(){  
                public void actionPerformed(ActionEvent ae){
                   System.exit(0);
                }
             });
-   
-        
+            
       try{
          // Create output stream
          out = new ObjectOutputStream(os);
       
-         
          // Create input stream
          is = s.getInputStream();
          ois = new ObjectInputStream(is); 
-         
-         
+           
          Object obj;
          
          while(true){
-         
             obj = ois.readObject();
          
             append(obj.toString());
@@ -235,8 +236,7 @@ public class ChatClient{
       catch(IOException ioe){
          append("Server Offline...");
          JOptionPane.showMessageDialog(null, "Server Offline...");
-         System.exit(0);
-                     
+         System.exit(0);                     
       }
       catch(ClassNotFoundException cnfe){
          append(" 2" +cnfe.getMessage());
@@ -245,12 +245,15 @@ public class ChatClient{
       }
    
    }
-   public static void main(String[] args){
    
+   public static void main(String[] args){
       ChatClient cc = new ChatClient();
    }
    
-  
+  /**
+   *Appends string to the chat window
+   *@String s - string to be appended to the window
+   */
    public void append(String s)
    {
       LOG.append(s + "\n");

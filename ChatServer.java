@@ -16,12 +16,14 @@ This Server will be used to receive messages from the client and then send it to
 public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
-   DatagramSocket ds = null;
+   DatagramSocket datagramSocket = null;
    Object message;
-   
+       
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
+   
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
+   
    String timeStamp = new SimpleDateFormat("hh:mm:ss").format(Calendar.getInstance().getTime());
 
    
@@ -61,7 +63,9 @@ public class ChatServer{
      
       try{
          //tcp
-         ss = new ServerSocket(PORT);       
+         ss = new ServerSocket(PORT);    
+         datagramSocket = new DatagramSocket(PORT);             
+           
          Socket cs = null;
          String ip;
          //udp
@@ -164,7 +168,7 @@ public class ChatServer{
       public void run() {
          System.out.println("UDP Thread Started");
          try{          
-            DatagramSocket datagramSocket = new DatagramSocket(PORT);             
+            //DatagramSocket datagramSocket = new DatagramSocket(PORT);             
             byte[] receiveData = null;             
             byte[] sendData = null;            
             while(true)                
@@ -174,6 +178,7 @@ public class ChatServer{
                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
                   
                datagramSocket.receive(receivePacket);
+               
                InetAddress IPAddress = receivePacket.getAddress();   
             
                String sentence = new String( receivePacket.getData());   

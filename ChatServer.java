@@ -26,9 +26,8 @@ public class ChatServer{
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
    
-   String timeStamp = new SimpleDateFormat("hh:mm:ss").format(Calendar.getInstance().getTime());
+   static String timeStamp = new SimpleDateFormat("hh:mm:ss").format(Calendar.getInstance().getTime());
 
-   
    public ChatServer(){
          
      //server GUI
@@ -90,12 +89,45 @@ public class ChatServer{
       catch(IOException ioe){
          System.err.println(ioe.getMessage());
       }
+      
+      try{
+         //tcp
+         ss = new ServerSocket(PORT);    
+         datagramSocket = new DatagramSocket(PORT);             
+           
+         Socket cs = null;
+         String ip;
+         //udp
+         //ds = new DatagramSocket(PORT);
+         
+         // waits for client to connect, starts thread, adds to client Vector
+         while(true){
+            
+            UDPThread udpThread = new UDPThread();
+            udpThread.start();
+         
+            cs = ss.accept();         
+            ClientThread ct = new ClientThread(cs);
+            ct.start();
+            ctVector.add(ct);
+            System.out.println("Message from " +getIP(cs));
+            
+         }
+      }
+      catch(IOException ioe){
+         System.err.println(ioe.getMessage());
+      }
    
    }//end of ChatServer Class - The GUI
 
    //Execute Chat Server
    public static void main(String[] args){
       ChatServer cs = new ChatServer();
+   }
+   
+   //Updates timestamp
+   public static void updateTimeStamp(){
+      timeStamp = new SimpleDateFormat("hh:mm:ss").format(Calendar.getInstance().getTime());
    }
 
   //Thread for Communication
@@ -138,6 +170,7 @@ public class ChatServer{
                      ObjectOutputStream temp = clients.get(i);
                      try{
                         System.out.println("Size: " +clients.size() +" Trying to send to client# "  + i);
+                        updateTimeStamp();
                         temp.writeObject("("+timeStamp+ ") " + getIP(cs) + ": " + message);
                         temp.flush();
                      }
@@ -163,6 +196,7 @@ public class ChatServer{
    class UDPThread extends Thread {    
    
       public void run() {
+         
          System.out.println("UDP Thread Started");
          
          try{          
@@ -177,15 +211,13 @@ public class ChatServer{
                
                //Receive message   
                datagramSocket.receive(receivePacket);
-<<<<<<< HEAD
-               
-=======
+
                //IP address in use
->>>>>>> origin/master
                InetAddress IPAddress = receivePacket.getAddress();   
                
                //Format message
-               String sentence = new String( receivePacket.getData());   
+               String sentence = new String( receivePacket.getData()); 
+               updateTimeStamp();  
                sentence = "("+timeStamp+") " + IPAddress+": " +sentence;                
                System.out.println("RECEIVED: " + sentence);   
                

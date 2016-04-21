@@ -163,26 +163,31 @@ public class ChatClient{
                         System.out.println("UDP Send button");//pressed udp
                      
                         try {
-                           //Input      
+                           //Input from user     
                            BufferedReader inFromUser =
-                              new BufferedReader(new InputStreamReader(System.in));
-                           //datagram socket for receiving messages       
+                              new BufferedReader(new InputStreamReader( System.in ));
+                              
+                           //datagram socket for connection     
                            DatagramSocket clientSocket = new DatagramSocket();
+                           
                            //IP being used       
                            InetAddress IPAddress = InetAddress.getByName(HOST);
                                   
                            byte[] sendData    =  new byte[1024];
                            byte[] receiveData =  new byte[1024];      
+                           
                            String sentence    =  senderMsg;
                                   
                            sendData = sentence.getBytes();
+                           
+                           
                            
                            //Create a packet to be sent       
                            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);
                            //Send message from client       
                            clientSocket.send( sendPacket );
                                   
-                           //--
+                           //Receive Packets
                            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
                            clientSocket.receive( receivePacket );       
                            

@@ -55,15 +55,22 @@ public class c
 				outPacket = new DatagramPacket(
 								message.getBytes(),
 								message.length(),
-								host,PORT);
+								host,
+                        PORT
+            );
+                        
 				dgramSocket.send(outPacket);
+            
 				buffer = new byte[256];
+            
 				inPacket = new DatagramPacket(
 					buffer, buffer.length);
+               
 				dgramSocket.receive(inPacket);
 
 				response = new String(inPacket.getData(),
 							0, inPacket.getLength());
+                     
 				System.out.println(
 						"\nSERVER>" + response);
 

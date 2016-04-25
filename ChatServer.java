@@ -18,8 +18,16 @@ This Server will be used to receive messages from the client and then send it to
 public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
-   DatagramSocket datagramSocket = null;
+   
+   static DatagramPacket dgPacket = null;
+   static DatagramSocket dgSocket = null;
+   static ArrayList<InetAddress> iNetArr;
+   static LinkedBlockingQueue<byte[]> udpMsgArr;
+
+   
+   
    Object message;
+
        
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
    
@@ -65,12 +73,14 @@ public class ChatServer{
       try{
          //tcp
          ss = new ServerSocket(PORT);    
-         datagramSocket = new DatagramSocket(PORT);             
+         //datagramSocket = new DatagramSocket(PORT);             
            
          Socket cs = null;
          String ip;
          //udp
          //ds = new DatagramSocket(PORT);
+         iNetArr = new ArrayList<InetAddress>();
+         udpMsgArr = new LinkedBlockingQueue<byte[]>();
          
          // waits for client to connect, starts thread, adds to client Vector
          while(true){
@@ -101,11 +111,12 @@ public class ChatServer{
          //ds = new DatagramSocket(PORT);
          
          // waits for client to connect, starts thread, adds to client Vector
-         while(true){
-            
-            UDPThread udpThread = new UDPThread();
-            udpThread.start();
          
+        
+         while(true){
+            UDPThread udpThread = new UDPThread();
+            udpThread.start(); 
+                   
             cs = ss.accept();         
             ClientThread ct = new ClientThread(cs);
             ct.start();
@@ -117,6 +128,9 @@ public class ChatServer{
       catch(IOException ioe){
          System.err.println(ioe.getMessage());
       }
+      catch(NullPointerException npe){
+            printOut("Null Pointer line 207: " + npe.getMessage());
+          }
    
    }//end of ChatServer Class - The GUI
 
@@ -193,46 +207,97 @@ public class ChatServer{
    }//end of tcp thread
    
    //Thread for UDP communication
-   class UDPThread extends Thread {    
+   class UDPThread extends Thread { 
    
+      private DatagramPacket sendPacket;
+      
+      public DatagramPacket getSP(){
+         return sendPacket;
+      }
+      
+      public void setSP( DatagramPacket dgm){
+         sendPacket = dgm;
+      }
+      
+      public void setDGS(){
+      /*
+          try{
+            //datagramSocket= new DatagramSocket(PORT);
+          }
+          catch(IOException ioe){
+            printOut(ioe.getMessage());
+          }
+          catch(NullPointerException npe){
+            printOut("Null Pointer line 207: " + npe.getMessage());
+          }
+         */
+            
+      }
+    
+      public UDPThread(){
+         
+       
+
+      }
+    
       public void run() {
          
          System.out.println("UDP Thread Started");
          
          try{          
-            //DatagramSocket datagramSocket = new DatagramSocket(PORT);             
-            byte[] receiveData = null;             
-            byte[] sendData = null;            
-            while(true)                
-            {  
-               receiveData =  new byte[1024];             
-               sendData    =  new byte[1024];                  
-               DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
+            
+            String msgIncoming, msgOutGoing;             
+            byte[] receiveDataBytes = null;             
+            byte[] sendDataBytes    = null;
+                        
+            while(true){              
+               receiveDataBytes =  new byte[1024];             
+               sendDataBytes    =  new byte[1024];
+                                 
+               DatagramPacket receivePacket = new DatagramPacket(
+                  receiveDataBytes, 
+                  receiveDataBytes.length
+               );                   
                
                //Receive message   
                datagramSocket.receive(receivePacket);
 
                //IP address in use
                InetAddress IPAddress = receivePacket.getAddress();   
-               
+                      
+               msgIncoming = new String(
+                  receivePacket.getData(),
+                  0,
+						receivePacket.getLength()
+               );
+
+               printOut("Incoming message is: "+msgIncoming);
                //Format message
-               String sentence = new String( receivePacket.getData()); 
+               String sentence = new String( receivePacket.getData() ); 
                updateTimeStamp();  
+      
                sentence = "("+timeStamp+") " + IPAddress+": " +sentence;                
                System.out.println("RECEIVED: " + sentence);   
                
-               //                              
-               int port = receivePacket.getPort();                   
+               //Client port                            
+               int clientPort = receivePacket.getPort();                   
                
                //turn data into bytes
-               sendData = sentence.getBytes();
-                                  
-               DatagramPacket sendPacket =                   
-                        new DatagramPacket(sendData, sendData.length, IPAddress, port);
+               sendDataBytes = sentence.getBytes();
+                    
+               //Construct DataGramPacket                   
+               DatagramPacket sendDGM =                   
+                        new DatagramPacket(
+                           sendDataBytes, 
+                           sendDataBytes.length, 
+                           IPAddress, 
+                           clientPort
+               );
+               setSP(sendDGM); 
                           
                //send message                               
-               datagramSocket.send(sendPacket);                        
-            }//end of while  
+               datagramSocket.send(getSP());                        
+            }//end of while true
          }//end of try
          
          catch(IOException ioe){        
@@ -251,5 +316,9 @@ public class ChatServer{
       ip = ip.substring(1,ip.length());
    
       return ip;
-   }                                            
+   }    
+   
+   public static void printOut(String msg){
+      System.out.println(msg);
+   }                                        
 }//end of chat server class

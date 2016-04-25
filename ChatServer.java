@@ -74,6 +74,7 @@ public class ChatServer{
          // waits for client to connect, starts thread, adds to client Vector
          while(true){
             
+            
             UDPThread udpThread = new UDPThread();
             udpThread.start();
          

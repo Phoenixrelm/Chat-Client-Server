@@ -1,5 +1,3 @@
-/*https://www.youtube.com/watch?v=hlTQUzPZU8Yimport java.awt.*;
-*/
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -190,6 +188,7 @@ public class ChatServer{
                //Receive message   
                datagramSocket.receive(receivePacket);
                
+<<<<<<< HEAD
                
                
                InetAddress IPAddress = receivePacket.getAddress(); 
@@ -209,6 +208,11 @@ public class ChatServer{
             
                sendData    =  new byte[1024]; 
                  
+=======
+               //IP address in use
+
+               InetAddress IPAddress = receivePacket.getAddress();   
+>>>>>>> afbcf4fb31392e234b98790eaad5b4fa1ae0bedb
                
                //Format message
                String sentence = new String(receivePacket.getData());   

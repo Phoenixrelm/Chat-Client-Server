@@ -182,8 +182,9 @@ public class ChatClient{
                            //Send message from client       
                            clientSocket.send( sendPacket );
                                   
-                           //--
-                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
+                           //Create empty packet
+                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
+                           //Fill packet with data from server      
                            clientSocket.receive( receivePacket );       
                            
                            String modifiedSentence = new String( receivePacket.getData() );      
@@ -217,6 +218,7 @@ public class ChatClient{
             });
             
       try{
+      System.out.println("Inside TRY Line 221");
          // Create output stream
          out = new ObjectOutputStream(os);
       
@@ -228,7 +230,6 @@ public class ChatClient{
          
          while(true){
             obj = ois.readObject();
-         
             append(obj.toString());
          }
       

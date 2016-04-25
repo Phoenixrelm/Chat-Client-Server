@@ -16,12 +16,14 @@ This client will be used to send messages to the server and receive them.
 public class ChatClient{
    private final int PORT = 16789;
    private String  HOST = "Localhost";
+   private static DatagramSocket dgm;
+   private static DatagramPacket rPacket, sPacket;
    final JTextArea LOG;
    final JTextField INPUT;
    JPanel panel;
    Socket s;
    OutputStream os;
-   ObjectOutputStream out;
+   ObjectOutputStream outStream;
    InputStream is;
    ObjectInputStream ois;
    JFrame frame = new JFrame("Network Protocol");
@@ -144,9 +146,9 @@ public class ChatClient{
                            System.out.println("ABOUT TO SEND: " +senderMsg);
                            
                            //Send message to outputstream
-                           out.writeObject(senderMsg);
+                           outStream.writeObject(senderMsg);
                            //Clear the buffer
-                           out.flush();
+                           outStream.flush();
                            
                            //reset output field
                            INPUT.setText("");
@@ -163,44 +165,64 @@ public class ChatClient{
                         System.out.println("UDP Send button");//pressed udp
                      
                         try {
-                           //Input from user     
-                           BufferedReader inFromUser =
-                              new BufferedReader(new InputStreamReader( System.in ));
-                              
-                           //datagram socket for connection     
-                           DatagramSocket clientSocket = new DatagramSocket();
-                           
-                           //IP being used       
-                           InetAddress IPAddress = InetAddress.getByName(HOST);
-                                  
-                           byte[] sendData    =  new byte[1024];
-                           byte[] receiveData =  new byte[1024];      
-                           
-                           String sentence    =  senderMsg;
-                                  
-                           sendData = sentence.getBytes();
-                           
-                           
-                           
-                           //Create a packet to be sent       
-                           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, PORT);
-                           //Send message from client       
-                           clientSocket.send( sendPacket );
-                                  
-                           //Receive Packets
-                           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
-                           clientSocket.receive( receivePacket );       
-                           
-                           String modifiedSentence = new String( receivePacket.getData() );      
-                           System.out.println("FROM SERVER:" + modifiedSentence);
+                        do{
+                            DatagramPacket receivePacket = null;
+                            DatagramPacket sendPacket    = null;
+                            
+                            //Input from user     
+                            BufferedReader inFromUser =
+                                 new BufferedReader(new InputStreamReader( System.in ));
                                  
-                           //Close connection
-                           clientSocket.close();
-                           
-                           //Append message to window   
-                           append(modifiedSentence);
-                           //Clear input field   
-                           INPUT.setText(""); 
+                           //datagram socket for connection     
+                            DatagramSocket clientSocket  = new DatagramSocket();
+                            
+                            //IP being used       
+                            InetAddress IPAddress = InetAddress.getByName(HOST);
+                            
+                           //do{                                
+                              byte[] sendData    =  new byte[1024];
+                                    
+                              
+                              //Users Message
+                              String sentence    =  senderMsg;
+                                     
+                              sendData = sentence.getBytes();
+            
+                              //Create a packet to be sent       
+                              sendPacket = 
+                                 new DatagramPacket(
+                                    sendData, 
+                                    sendData.length, 
+                                    IPAddress, 
+                                    PORT
+                              );
+                              
+                              //Send message from client       
+                              clientSocket.send( sendPacket );
+                                     
+                              //Receive Packets
+                              /*
+                              receivePacket = 
+                                 new DatagramPacket(
+                                    receiveData, 
+                                    receiveData.length
+                              );
+                                     
+                              clientSocket.receive( receivePacket );       
+                              
+                              String modifiedSentence = new String( receivePacket.getData() );      
+                              System.out.println("FROM SERVER:" + modifiedSentence);
+                                    
+                              //Close connection
+                              //clientSocket.close();
+                              
+                              Append message to window   
+                              append(modifiedSentence);
+                              //Clear input field   
+                              INPUT.setText(""); 
+                             // printOut( "Client has connection: " + clientSocket.isConnected() );
+                              */
+                           }while( true );
                         }
                         catch(UnknownHostException uhe) {
                            append("Unable to connect to host.");
@@ -222,8 +244,32 @@ public class ChatClient{
             });
             
       try{
+      
+         dgm = new DatagramSocket();
+     
+         byte[] receiveData =  new byte[1024];
+         
+         //Receiving Packet
+         rPacket = 
+            new DatagramPacket(
+						receiveData, 
+                  receiveData.length
+            );
+         //receive packet
+         dgm.receive( rPacket ); 
+         
+         
+         String receivedMsg = 
+            new String(
+               rPacket.getData(),
+					0, 
+               rPacket.getLength()
+         );
+         
+         printOut(receivedMsg);
+      
          // Create output stream
-         out = new ObjectOutputStream(os);
+        outStream = new ObjectOutputStream(os);
       
          // Create input stream
          is = s.getInputStream();
@@ -245,14 +291,23 @@ public class ChatClient{
       }
       catch(ClassNotFoundException cnfe){
          append(" 2" +cnfe.getMessage());
+         //ErrorDialog ed = new ErrorDialog("Error",  "Unexpected Error has occured");
+         printOut("Class not found err");
       }
       catch(NullPointerException npe){
+         printOut("Null pointer exception");
       }
+
    
    }
-   
+
    public static void main(String[] args){
       ChatClient cc = new ChatClient();
+   }
+   
+   
+   public static void printOut(String msg){
+      System.out.println(msg);
    }
    
   /**

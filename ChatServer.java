@@ -76,10 +76,17 @@ public class ChatServer{
          //ds = new DatagramSocket(PORT);
          
          // waits for client to connect, starts thread, adds to client Vector
+<<<<<<< HEAD
         while(true){
          
               
             UDPThread udpThread = new UDPThread( );
+=======
+         while(true){
+            
+            
+            UDPThread udpThread = new UDPThread();
+>>>>>>> origin/master
             udpThread.start();
          
             cs = ss.accept();         

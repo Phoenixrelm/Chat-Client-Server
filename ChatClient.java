@@ -119,7 +119,7 @@ public class ChatClient{
          System.out.println("Hey you closed me :(");// pressed close
          System.exit(0);
       }
-
+   
       /*
        * Send button event
        */      
@@ -218,19 +218,30 @@ public class ChatClient{
             });
             
       try{
+<<<<<<< HEAD
       System.out.println("Inside TRY Line 221");
+=======
+         listenForUDP udpL = new listenForUDP();
+         udpL.start();
+         System.out.println("Inside Try");      
+      
+>>>>>>> origin/master
          // Create output stream
          out = new ObjectOutputStream(os);
       
          // Create input stream
          is = s.getInputStream();
          ois = new ObjectInputStream(is); 
-           
+         System.out.println("Input Stream Creat");      
+      
          Object obj;
-         
+      
+      
+         byte[] receiveData =  new byte[1024]; 
          while(true){
             obj = ois.readObject();
             append(obj.toString());
+               
          }
       
       }
@@ -260,5 +271,66 @@ public class ChatClient{
       LOG.append(s + "\n");
       panel.scrollRectToVisible(LOG.getBounds());
       LOG.setCaretPosition(LOG.getText().length());
-   }      
+   }  
+   
+   
+   class listenForUDP extends Thread {    
+   
+      public void run() {
+         try{
+            DatagramSocket clientSocket = new DatagramSocket();
+                           //IP being used       
+            InetAddress IPAddress = InetAddress.getByName(HOST);
+                                  
+            byte[] receiveData =  new byte[1024];      
+                                  
+                           
+         
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);    
+               
+            clientSocket.receive( receivePacket );       
+                           
+            String modifiedSentence = new String( receivePacket.getData() );      
+            System.out.println("FROM SERVER:" + modifiedSentence);
+                                 
+                           //Close connection
+            clientSocket.close();
+                           
+                           //Append message to window   
+            append(modifiedSentence);
+         
+         
+         
+         
+         
+         
+         /////////////////////////
+            /*DatagramSocket clientSocket = new DatagramSocket();
+            DatagramPacket receivePacket = null;       
+         
+         
+            byte[] receiveData =  new byte[1024]; 
+            while(true){
+            
+               receivePacket = new DatagramPacket(receiveData, receiveData.length);     
+             
+               System.out.println("waiting to  Recieve");      
+            
+               clientSocket.receive( receivePacket ); 
+               System.out.println("Packet Recieved");      
+               String modifiedSentence = new String( receivePacket.getData() );     
+               System.out.println(modifiedSentence);      
+            
+               append(modifiedSentence);
+            
+            
+            }*/
+         }
+         catch(IOException ioe){}
+      
+      }
+      
+   }
+
+       
 }

@@ -18,13 +18,17 @@ This Server will be used to receive messages from the client and then send it to
 public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
-   DatagramSocket datagramSocket = null;
    Object message;
        
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
    
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
+   
+   DatagramSocket datagramSocket = null;
+   
+   public HashSet<InetAddress> udpClients = new HashSet<InetAddress>();
+   
    
    String timeStamp = new SimpleDateFormat("hh:mm:ss").format(Calendar.getInstance().getTime());
 
@@ -74,9 +78,10 @@ public class ChatServer{
          //ds = new DatagramSocket(PORT);
          
          // waits for client to connect, starts thread, adds to client Vector
-         while(true){
-            
-            UDPThread udpThread = new UDPThread();
+        while(true){
+         
+              
+            UDPThread udpThread = new UDPThread( );
             udpThread.start();
          
             cs = ss.accept();         
@@ -160,52 +165,97 @@ public class ChatServer{
    }//end of tcp thread
    
    //Thread for UDP communication
-   class UDPThread extends Thread {    
+   class UDPThread extends Thread { 
    
+     // DatagramPacket dp;
+   /*
+      public UDPThread( DatagramPacket dgp ){
+        this.dp = dgp;
+      }   
+   */
       public void run() {
          System.out.println("UDP Thread Started");
          
-         try{          
+         //try{          
             //DatagramSocket datagramSocket = new DatagramSocket(PORT);             
-            byte[] receiveData = null;             
+                         
             byte[] sendData = null;            
-            while(true)                
-            {  
+            while(true) {
+            try{
+             byte[] receiveData = null; 
                receiveData =  new byte[1024];             
-               sendData    =  new byte[1024];                  
+                               
                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
                
                //Receive message   
                datagramSocket.receive(receivePacket);
-<<<<<<< HEAD
                
-=======
-               //IP address in use
->>>>>>> origin/master
-               InetAddress IPAddress = receivePacket.getAddress();   
+               
+               
+               InetAddress IPAddress = receivePacket.getAddress(); 
+               System.out.println(IPAddress);
+               if(udpClients.size() == 0){
+                     udpClients.add( IPAddress );
+               }
+               else{
+                  for(InetAddress ina: udpClients){
+                     if(IPAddress != ina){
+                        udpClients.add( IPAddress );
+                     }
+                  }
+               }
+                              
+              
+            
+               sendData    =  new byte[1024]; 
+                 
                
                //Format message
-               String sentence = new String( receivePacket.getData());   
-               sentence = "("+timeStamp+") " + IPAddress+": " +sentence;                
+               String sentence = new String(receivePacket.getData());   
+               sentence = "("+timeStamp+") " + receivePacket.getAddress()+": " +sentence;                
                System.out.println("RECEIVED: " + sentence);   
                
                //                              
-               int port = receivePacket.getPort();                   
+               int port = receivePacket.getPort(); 
+               //InetAddress clientIP = receivePacket.getAddress();                   
                
                //turn data into bytes
                sendData = sentence.getBytes();
                                   
-               DatagramPacket sendPacket =                   
-                        new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                          
-               //send message                               
-               datagramSocket.send(sendPacket);                        
-            }//end of while  
+               DatagramPacket sendPacket;                  
+                System.out.println("Outside For, Client Size: " + udpClients.size() );                               
+               //send message 
+               int i = 0;   
+                for(InetAddress ina : udpClients){
+                     //ObjectOutputStream temp = clients.get(i);
+                     
+                     try{
+                        System.out.println("Size: " + ina +" Trying to send to client# "+ i );
+                        
+                        sendPacket = new DatagramPacket(sendData, sendData.length,ina, port);
+                        
+                        System.out.println("Packet Constructed");
+                        datagramSocket.send( sendPacket );
+                        
+                        System.out.println("PAcket Sent");
+                        i++;
+                        System.out.println(sendPacket.getData().toString() );
+                     }
+                     catch(IOException ioe){
+                        System.out.println("Client Disconnected #"  + i);
+                        udpClients.remove(i);
+                    
+                     }         
+                 }//end of for loop 
+                           
+               //datagramSocket.send(sendPacket);                        
+          //end of while  
          }//end of try
          
-         catch(IOException ioe){        
+         catch(IOException ioe){ 
+            System.out.println("IEO");       
          } 
-                        
+        }                
       }//end of run 
    }//end of UDP thread
     

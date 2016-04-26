@@ -218,14 +218,13 @@ public class ChatClient{
             });
             
       try{
-<<<<<<< HEAD
-      System.out.println("Inside TRY Line 221");
-=======
+      
+         System.out.println("Inside TRY Line 221");
          listenForUDP udpL = new listenForUDP();
          udpL.start();
          System.out.println("Inside Try");      
       
->>>>>>> origin/master
+      
          // Create output stream
          out = new ObjectOutputStream(os);
       
@@ -275,58 +274,46 @@ public class ChatClient{
    
    
    class listenForUDP extends Thread {    
-   
-      public void run() {
-         try{
-            DatagramSocket clientSocket = new DatagramSocket();
-                           //IP being used       
-            InetAddress IPAddress = InetAddress.getByName(HOST);
-                                  
-            byte[] receiveData =  new byte[1024];      
-                                  
-                           
-         
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);    
-               
-            clientSocket.receive( receivePacket );       
-                           
-            String modifiedSentence = new String( receivePacket.getData() );      
-            System.out.println("FROM SERVER:" + modifiedSentence);
-                                 
-                           //Close connection
-            clientSocket.close();
-                           
-                           //Append message to window   
-            append(modifiedSentence);
-         
-         
-         
-         
-         
-         
-         /////////////////////////
-            /*DatagramSocket clientSocket = new DatagramSocket();
-            DatagramPacket receivePacket = null;       
-         
-         
-            byte[] receiveData =  new byte[1024]; 
-            while(true){
-            
-               receivePacket = new DatagramPacket(receiveData, receiveData.length);     
              
-               System.out.println("waiting to  Recieve");      
+      private DatagramSocket udpClientSocket;
+      private boolean stopped = false;
+      public listenForUDP(DatagramSocket ds) throws SocketException {
+         this.udpClientSocket = ds;
+      }
+      public void run() {
+              // Create a byte buffer/array for the receive Datagram packet
+         byte[] receiveData = new byte[1024];
+      
+         while (true) {            
+         
             
-               clientSocket.receive( receivePacket ); 
-               System.out.println("Packet Recieved");      
-               String modifiedSentence = new String( receivePacket.getData() );     
-               System.out.println(modifiedSentence);      
+            // Set up a DatagramPacket to receive the data into
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             
-               append(modifiedSentence);
+            try {
+                // Receive a packet from the server (blocks until the packets are received)
+               udpClientSocket.receive(receivePacket);
+                
+                // Extract the reply from the DatagramPacket      
+               String serverReply =  new String(receivePacket.getData(), 0, receivePacket.getLength());
+                
+                // print to the screen
+               System.out.println("UDPClient: Response from Server: \"" + serverReply + "\"\n");
+               
+               append("Hey"+serverReply);
             
-            
-            }*/
+               Thread.yield();
+            } 
+            catch (IOException ex) {
+               System.err.println(ex);
+            }
          }
-         catch(IOException ioe){}
+                                    //Append message to window   
+         
+         
+         
+         
+      
       
       }
       

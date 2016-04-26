@@ -76,17 +76,11 @@ public class ChatServer{
          //ds = new DatagramSocket(PORT);
          
          // waits for client to connect, starts thread, adds to client Vector
-<<<<<<< HEAD
-        while(true){
-         
-              
-            UDPThread udpThread = new UDPThread( );
-=======
+
          while(true){
             
             
             UDPThread udpThread = new UDPThread();
->>>>>>> origin/master
             udpThread.start();
          
             cs = ss.accept();         
@@ -195,7 +189,6 @@ public class ChatServer{
                //Receive message   
                datagramSocket.receive(receivePacket);
                
-<<<<<<< HEAD
                
                
                InetAddress IPAddress = receivePacket.getAddress(); 
@@ -215,11 +208,8 @@ public class ChatServer{
             
                sendData    =  new byte[1024]; 
                  
-=======
                //IP address in use
 
-               InetAddress IPAddress = receivePacket.getAddress();   
->>>>>>> afbcf4fb31392e234b98790eaad5b4fa1ae0bedb
                
                //Format message
                String sentence = new String(receivePacket.getData());   

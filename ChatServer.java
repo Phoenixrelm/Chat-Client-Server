@@ -23,7 +23,7 @@ public class ChatServer{
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
    
-   DatagramSocket datagramSocket = null;
+   //DatagramSocket datagramSocket = null;
    
    public HashSet<InetAddress> udpClients = new HashSet<InetAddress>();
    
@@ -68,7 +68,7 @@ public class ChatServer{
       try{
          //tcp
          ss = new ServerSocket(PORT);    
-         datagramSocket = new DatagramSocket(PORT);             
+         //datagramSocket = new DatagramSocket(PORT);             
            
          Socket cs = null;
          String ip;

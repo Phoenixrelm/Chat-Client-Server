@@ -4,7 +4,7 @@ import java.util.*;
 
 
 class MessageSender implements Runnable {
-    public final static int PORT = 7331;
+    public final static int PORT = 16789;
     private DatagramSocket sock;
     private String hostname;
     MessageSender(DatagramSocket s, String h) {

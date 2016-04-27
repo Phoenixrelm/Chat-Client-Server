@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.*;
 
 public class ChatServer extends Thread {
-    public final static int PORT = 7331;
+    public final static int PORT = 16789;
     private final static int BUFFER = 1024;
     
     private DatagramSocket socket;

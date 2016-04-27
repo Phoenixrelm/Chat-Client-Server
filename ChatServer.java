@@ -217,7 +217,7 @@ public class ChatServer{
                System.out.println("RECEIVED: " + sentence);   
                
                //                              
-               int port = receivePacket.getPort(); 
+               //int port = receivePacket.getPort(); 
                //InetAddress clientIP = receivePacket.getAddress();                   
                
                //turn data into bytes
@@ -233,14 +233,14 @@ public class ChatServer{
                      try{
                         System.out.println("Size: " + ina +" Trying to send to client# "+ i );
                         
-                        sendPacket = new DatagramPacket(sendData, sendData.length,ina, port);
+                        sendPacket = new DatagramPacket(sendData, sendData.length, ina, PORT);
                         
                         System.out.println("Packet Constructed");
                         datagramSocket.send( sendPacket );
                         
                         System.out.println("PAcket Sent");
                         i++;
-                        System.out.println(sendPacket.getData().toString() );
+                        System.out.println("Sent Packet: " + sendPacket.getLength());
                      }
                      catch(IOException ioe){
                         System.out.println("Client Disconnected #"  + i);

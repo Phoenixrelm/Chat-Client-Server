@@ -274,46 +274,27 @@ public class ChatClient{
    
    
    class listenForUDP extends Thread {    
-             
-      private DatagramSocket udpClientSocket;
-      private boolean stopped = false;
-      public listenForUDP(DatagramSocket ds) throws SocketException {
-         this.udpClientSocket = ds;
-      }
+   
       public void run() {
               // Create a byte buffer/array for the receive Datagram packet
-         byte[] receiveData = new byte[1024];
-      
-         while (true) {            
+         try {
+            DatagramSocket serverSocket = new DatagramSocket(PORT);
+            byte[] receiveData = new byte[1024];
          
-            
-            // Set up a DatagramPacket to receive the data into
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            
-            try {
-                // Receive a packet from the server (blocks until the packets are received)
-               udpClientSocket.receive(receivePacket);
-                
-                // Extract the reply from the DatagramPacket      
-               String serverReply =  new String(receivePacket.getData(), 0, receivePacket.getLength());
-                
-                // print to the screen
-               System.out.println("UDPClient: Response from Server: \"" + serverReply + "\"\n");
-               
-               append("Hey"+serverReply);
-            
-               Thread.yield();
-            } 
-            catch (IOException ex) {
-               System.err.println(ex);
+            System.out.printf("Listening on udp:%s:%d%n",
+                InetAddress.getLocalHost().getHostAddress(), PORT);     
+            DatagramPacket receivePacket = new DatagramPacket(receiveData,receiveData.length);
+         
+            while(true)
+            {
+               serverSocket.receive(receivePacket);
+               String sentence = new String( receivePacket.getData());
+               System.out.println("RECEIVED: " + sentence);
             }
-         }
-                                    //Append message to window   
-         
-         
-         
-         
-      
+         } 
+         catch (IOException e) {
+            System.out.println(e);
+         }    
       
       }
       

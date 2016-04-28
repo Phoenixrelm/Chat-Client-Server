@@ -73,16 +73,15 @@ public class ChatServer{
          Socket cs = null;
          String ip;
          //udp
-         //ds = new DatagramSocket(PORT);
+          udpSocket = new DatagramSocket( PORT );
+          clientIPs = new ArrayList();
+          clientPorts = new ArrayList();
+          connectedClients = new HashSet();
          
          // waits for client to connect, starts thread, adds to client Vector
       
          while(true){
-            udpSocket = new DatagramSocket( PORT );
-            clientIPs = new ArrayList();
-            clientPorts = new ArrayList();
-            connectedClients = new HashSet();
-            
+           
             UDPThread udpThread = new UDPThread();
             udpThread.start();
                      System.out.println("Waiting for TCP Client .accept");      

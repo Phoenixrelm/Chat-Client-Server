@@ -10,6 +10,7 @@ public class ChatServer extends Thread {
     private ArrayList<InetAddress> clientAddresses;
     private ArrayList<Integer> clientPorts;
     private HashSet<String> existingClients;
+    
     public ChatServer() throws IOException {
         socket = new DatagramSocket(PORT);
         clientAddresses = new ArrayList();
@@ -56,3 +57,4 @@ public class ChatServer extends Thread {
         s.start();
     }
 }
+St

@@ -322,7 +322,7 @@ public class ChatClient{
             try {
                DatagramPacket packet = new DatagramPacket(buf, buf.length);
                sock.receive(packet);
-               String received = new String(packet.getData(), 0, packet.getLength());
+               String received = new String(packet.getData(), packet.getOffset(), packet.getLength());
                System.out.println(received);
                append(received);
             } 

@@ -108,7 +108,6 @@ public class ChatClient{
             s = new Socket(HOST, PORT);
             os = s.getOutputStream();
          
-            sendButton.setEnabled(true);
          }
          //Exceptions
          catch(UnknownHostException ukh){
@@ -122,14 +121,15 @@ public class ChatClient{
             socket = new DatagramSocket();
          }
          catch(SocketException se){}
+       
+         
+         Thread r = new Thread(new MessageReceiver(socket));
+         Thread s = new Thread(new MessageSender(socket,HOST));
       
-      
-         MessageReceiver r = new MessageReceiver(socket);
-         MessageSender s = new MessageSender(socket, HOST);
-         Thread rt = new Thread(r);
-         Thread st = new Thread(s);
-         rt.start(); 
-         st.start();
+         r.start(); 
+         s.start();
+         
+      //append("Send Message to connect...");
       
          
          sendButton.setEnabled(true);            
@@ -179,7 +179,19 @@ public class ChatClient{
                      }
                      //Checks if UDP                        
                      else if(protocol.equals("udp") ){
-                          
+                        senderMsg = INPUT.getText();
+                     
+                     //System.out.println("about to send" + senderMsg);
+                        try{ 
+                           byte buf[] = senderMsg.getBytes();
+                           InetAddress address = InetAddress.getByName(HOST);
+                           DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
+                           socket.send(packet);                     
+                        }
+                        catch(Exception e){
+                           append("Cannot Connect...");
+                        
+                        }
                         //ySystem.out.println("SenderMessage: " + senderMsg);
                          
                         INPUT.setText("");
@@ -232,104 +244,6 @@ public class ChatClient{
       catch(NullPointerException npe){
       }
    
-      sendButton.addActionListener(
-               new ActionListener(){
-               
-                  public void actionPerformed(ActionEvent ae){
-                     senderMsg = INPUT.getText();
-                  
-                     //System.out.println("about to send" + senderMsg);
-                     try{ 
-                        byte buf[] = senderMsg.getBytes();
-                        InetAddress address = InetAddress.getByName(HOST);
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
-                        socket.send(packet);                     
-                     }
-                     catch(Exception e){
-                     }
-                     
-                  }
-               });
-   
-   
-   
-   
-   
-      class MessageSender implements Runnable {
-         public DatagramSocket sock;
-         public String hostname = "localhost";
-         public MessageSender(DatagramSocket s, String h) {
-            sock = s;
-            hostname = h;
-         }
-         public void sendMessage(String s) throws Exception {
-         
-            System.out.println("Inside sendMessage()");
-         
-            byte buf[] = s.getBytes();
-            InetAddress address = InetAddress.getByName(hostname);
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
-            sock.send(packet);
-         }
-         
-         public void run() {
-            boolean connected = false;
-            do {
-               try {
-                  sendMessage("Connected...");
-                  connected = true;
-               } 
-               catch (Exception e) {
-                
-               }
-            } while (!connected);
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-            while (true) {
-               try {
-                  while (!in.ready()) {
-                     Thread.sleep(100);
-                  }
-                  sendMessage(in.readLine());
-               } 
-               catch(Exception e) {
-                  System.err.println(e);
-               }
-            }
-         }
-      }
-   
-      class MessageReceiver implements Runnable {
-         DatagramSocket sock;
-         byte buf[];
-         
-         
-         MessageReceiver(DatagramSocket s) {
-            sock = s;
-            buf = new byte[1024];
-            //System.out.println("Inside MessageReceiver() constructor");
-         
-         }
-         public void run() {
-            while (true) {
-               try {
-                  DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                  sock.receive(packet);
-                  String received = new String(packet.getData(), 0, packet.getLength());
-               } 
-               catch(Exception e) {
-                  System.err.println(e);
-               }
-            }
-         }
-      }
-   
-   
-   
-   
-   
-   
-   
-   
    }
    
    public static void main(String[] args){
@@ -353,6 +267,70 @@ public class ChatClient{
    
 
    
-       
+   class MessageSender implements Runnable {
+      public DatagramSocket sock;
+      public String hostname = "localhost";
+      public MessageSender(DatagramSocket s, String h) {
+         sock = s;
+         hostname = h;
+      }
+      public void sendMessage(String s) throws Exception {
+         
+         //System.out.println("Inside sendMessage()");
+      
+         byte buf[] = s.getBytes();
+         InetAddress address = InetAddress.getByName(hostname);
+         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
+         sock.send(packet);
+      }
+         
+      public void run() {
+         boolean connected = false;
+         do {
+            try {
+               sendMessage("User Connected...");
+               connected = true;
+            } 
+            catch (Exception e) {
+            }
+         } while (!connected);
+         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+         while (true) {
+            try {
+               while (!in.ready()) {
+                  Thread.sleep(100);
+               }
+               sendMessage(in.readLine());
+            } 
+            catch(Exception e) {
+               System.err.println(e);
+               
+            }
+         }
+      }
+   }
+   
+   class MessageReceiver implements Runnable {
+      DatagramSocket sock;
+      byte buf[];
+      MessageReceiver(DatagramSocket s) {
+         sock = s;
+         buf = new byte[1024];
+      }
+      public void run() {
+         while (true) {
+            try {
+               DatagramPacket packet = new DatagramPacket(buf, buf.length);
+               sock.receive(packet);
+               String received = new String(packet.getData(), 0, packet.getLength());
+               System.out.println(received);
+               append(received);
+            } 
+            catch(Exception e) {
+               System.err.println(e);
+            }
+         }
+      }
+   }
 }
 

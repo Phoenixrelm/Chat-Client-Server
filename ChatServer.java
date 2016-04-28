@@ -76,7 +76,7 @@ public class ChatServer{
          //ds = new DatagramSocket(PORT);
          
          // waits for client to connect, starts thread, adds to client Vector
-
+      
          while(true){
             
             
@@ -150,7 +150,7 @@ public class ChatServer{
                         clients.remove(i);
                         
                      }         
-                 }//end of for loop 
+                  }//end of for loop 
                }         
             }
          }//end of try
@@ -178,10 +178,10 @@ public class ChatServer{
          //try{          
             //DatagramSocket datagramSocket = new DatagramSocket(PORT);             
                          
-            byte[] sendData = null;            
-            while(true) {
+         byte[] sendData = null;            
+         while(true) {
             try{
-             byte[] receiveData = null; 
+               byte[] receiveData = null; 
                receiveData =  new byte[1024];             
                                
                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);                   
@@ -194,7 +194,7 @@ public class ChatServer{
                InetAddress IPAddress = receivePacket.getAddress(); 
                System.out.println(IPAddress);
                if(udpClients.size() == 0){
-                     udpClients.add( IPAddress );
+                  udpClients.add( IPAddress );
                }
                else{
                   for(InetAddress ina: udpClients){
@@ -209,7 +209,7 @@ public class ChatServer{
                sendData    =  new byte[1024]; 
                  
                //IP address in use
-
+            
                
                //Format message
                String sentence = new String(receivePacket.getData());   
@@ -224,39 +224,39 @@ public class ChatServer{
                sendData = sentence.getBytes();
                                   
                DatagramPacket sendPacket;                  
-                System.out.println("Outside For, Client Size: " + udpClients.size() );                               
+               System.out.println("Outside For, Client Size: " + udpClients.size() );                               
                //send message 
                int i = 0;   
-                for(InetAddress ina : udpClients){
+               for(InetAddress ina : udpClients){
                      //ObjectOutputStream temp = clients.get(i);
                      
-                     try{
-                        System.out.println("Size: " + ina +" Trying to send to client# "+ i );
+                  try{
+                     System.out.println("Size: " + ina +" Trying to send to client# "+ i );
                         
-                        sendPacket = new DatagramPacket(sendData, sendData.length, ina, PORT);
+                     sendPacket = new DatagramPacket(sendData, sendData.length, ina, PORT);
                         
-                        System.out.println("Packet Constructed");
-                        datagramSocket.send( sendPacket );
+                     System.out.println("Packet Constructed");
+                     datagramSocket.send( sendPacket );
                         
-                        System.out.println("PAcket Sent");
-                        i++;
-                        System.out.println("Sent Packet: " + sendPacket.getLength());
-                     }
-                     catch(IOException ioe){
-                        System.out.println("Client Disconnected #"  + i);
-                        udpClients.remove(i);
+                     System.out.println("PAcket Sent");
+                     i++;
+                     System.out.println("Sent Packet: " + sendPacket.getLength());
+                  }
+                  catch(IOException ioe){
+                     System.out.println("Client Disconnected #"  + i);
+                     udpClients.remove(i);
                     
-                     }         
-                 }//end of for loop 
+                  }         
+               }//end of for loop 
                            
                //datagramSocket.send(sendPacket);                        
-          //end of while  
-         }//end of try
-         
-         catch(IOException ioe){ 
-            System.out.println("IEO");       
-         } 
-        }                
+            //end of while  
+            }//end of try
+            
+            catch(IOException ioe){ 
+               System.out.println("IEO");       
+            } 
+         }                
       }//end of run 
    }//end of UDP thread
     

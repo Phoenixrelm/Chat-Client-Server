@@ -26,7 +26,12 @@ public class ChatClient{
    ObjectInputStream ois;
    JFrame frame = new JFrame("Network Protocol");
    String protocol = null;
-  
+   String senderMsg = "";
+
+   
+   
+   DatagramSocket socket = null;
+        
    public ChatClient(){
    
    ///////////////////Check Protocol///////////////////////
@@ -44,7 +49,7 @@ public class ChatClient{
     
       HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
       
-      System.out.println("HOST = "+ HOST);
+      //System.out.println("HOST = "+ HOST);
    
    ///////////////////Check Protocol///////////////////////
    
@@ -113,16 +118,14 @@ public class ChatClient{
       }
       else if(n == JOptionPane.NO_OPTION){
          protocol = "udp";
-         
-         DatagramSocket socket = null;
-         String host = HOST;
          try {
             socket = new DatagramSocket();
          }
          catch(SocketException se){}
-         
+      
+      
          MessageReceiver r = new MessageReceiver(socket);
-         MessageSender s = new MessageSender(socket, host);
+         MessageSender s = new MessageSender(socket, HOST);
          Thread rt = new Thread(r);
          Thread st = new Thread(s);
          rt.start(); 
@@ -145,7 +148,7 @@ public class ChatClient{
                public void actionPerformed(ActionEvent ae){
                
                  // TEXT_INPUT: takes in the users input and sends it to the server\
-                  String senderMsg = null;
+                  //String senderMsg = null;
                   senderMsg = INPUT.getText();
                   //Validates that a message was typed
                   if(senderMsg.length() == 0){
@@ -157,7 +160,7 @@ public class ChatClient{
                      if(protocol == "tcp"){   
                         try {
                            //See what message is about to be sent
-                           System.out.println("ABOUT TO SEND: " +senderMsg);
+                           //System.out.println("ABOUT TO SEND: " +senderMsg);
                            
                            //Send message to outputstream
                            out.writeObject(senderMsg);
@@ -177,9 +180,10 @@ public class ChatClient{
                      //Checks if UDP                        
                      else if(protocol.equals("udp") ){
                           
-                         senderMsg
-                         INPUT.setText("");
-
+                        //ySystem.out.println("SenderMessage: " + senderMsg);
+                         
+                        INPUT.setText("");
+                     
                                                 
                      }//end of if else(udp)   
                   }//End of else
@@ -204,12 +208,12 @@ public class ChatClient{
          // Create input stream
          is = s.getInputStream();
          ois = new ObjectInputStream(is); 
-         System.out.println("Input Stream Creat");      
+         //System.out.println("Input Stream Creat");      
       
          Object obj;
       
       
-         byte[] receiveData =  new byte[1024]; 
+         //byte[] receiveData =  new byte[1024]; 
          while(true){
             obj = ois.readObject();
             append(obj.toString());
@@ -228,26 +232,46 @@ public class ChatClient{
       catch(NullPointerException npe){
       }
    
-   
+      sendButton.addActionListener(
+               new ActionListener(){
+               
+                  public void actionPerformed(ActionEvent ae){
+                     senderMsg = INPUT.getText();
+                  
+                     //System.out.println("about to send" + senderMsg);
+                     try{ 
+                        byte buf[] = senderMsg.getBytes();
+                        InetAddress address = InetAddress.getByName(HOST);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
+                        socket.send(packet);                     
+                     }
+                     catch(Exception e){
+                     }
+                     
+                  }
+               });
    
    
    
    
    
       class MessageSender implements Runnable {
-         public final static int PORT = 16789;
-         private DatagramSocket sock;
-         private String hostname = "localhost";
-         MessageSender(DatagramSocket s, String h) {
+         public DatagramSocket sock;
+         public String hostname = "localhost";
+         public MessageSender(DatagramSocket s, String h) {
             sock = s;
             hostname = h;
          }
-         private void sendMessage(String s) throws Exception {
+         public void sendMessage(String s) throws Exception {
+         
+            System.out.println("Inside sendMessage()");
+         
             byte buf[] = s.getBytes();
             InetAddress address = InetAddress.getByName(hostname);
             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
             sock.send(packet);
          }
+         
          public void run() {
             boolean connected = false;
             do {
@@ -277,9 +301,13 @@ public class ChatClient{
       class MessageReceiver implements Runnable {
          DatagramSocket sock;
          byte buf[];
+         
+         
          MessageReceiver(DatagramSocket s) {
             sock = s;
             buf = new byte[1024];
+            //System.out.println("Inside MessageReceiver() constructor");
+         
          }
          public void run() {
             while (true) {
@@ -287,8 +315,6 @@ public class ChatClient{
                   DatagramPacket packet = new DatagramPacket(buf, buf.length);
                   sock.receive(packet);
                   String received = new String(packet.getData(), 0, packet.getLength());
-                  System.out.println("Message From Server: "+received);
-                  append(received);
                } 
                catch(Exception e) {
                   System.err.println(e);
@@ -316,6 +342,7 @@ public class ChatClient{
    */
    public void append(String s)
    {
+      //System.out.println("inside Append");
       LOG.append(s + "\n");
       panel.scrollRectToVisible(LOG.getBounds());
       LOG.setCaretPosition(LOG.getText().length());

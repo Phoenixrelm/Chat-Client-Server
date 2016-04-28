@@ -107,6 +107,9 @@ public class ChatClient{
          try{
             s = new Socket(HOST, PORT);
             os = s.getOutputStream();
+            sendButton.setEnabled(true);            
+         
+         
          
          }
          //Exceptions
@@ -164,6 +167,7 @@ public class ChatClient{
                            
                            //Send message to outputstream
                            out.writeObject(senderMsg);
+                           System.out.println("About To Send: " + senderMsg);
                            //Clear the buffer
                            out.flush();
                            

@@ -85,8 +85,10 @@ public class ChatServer{
             
             UDPThread udpThread = new UDPThread();
             udpThread.start();
-         
-            cs = ss.accept();         
+                     System.out.println("Waiting for TCP Client .accept");      
+
+            cs = ss.accept();   
+            System.out.println("SS.accept");      
             ClientThread ct = new ClientThread(cs);
             ct.start();
             ctVector.add(ct);

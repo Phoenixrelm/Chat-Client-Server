@@ -15,7 +15,7 @@ This client will be used to send messages to the server and receive them.
 
 public class ChatClient{
    private final int PORT = 16789;
-   private String  HOST = "Localhost";
+   private String HOST = "Localhost";
    final JTextArea LOG;
    final JTextField INPUT;
    JPanel panel;
@@ -49,7 +49,7 @@ public class ChatClient{
     
       HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
       
-      //System.out.println("HOST = "+ HOST);
+      System.out.println("HOST = "+ HOST);
    
    ///////////////////Check Protocol///////////////////////
    
@@ -107,6 +107,7 @@ public class ChatClient{
          try{
             s = new Socket(HOST, PORT);
             os = s.getOutputStream();
+            
             sendButton.setEnabled(true);            
          
          

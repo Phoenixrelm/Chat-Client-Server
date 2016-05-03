@@ -17,22 +17,17 @@ public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
    Object message;
-   //UDP
+   //server
    public DatagramSocket udpSocket;
    public ArrayList<InetAddress> clientIPs;
    public ArrayList<Integer>   clientPorts;
    public HashSet<String>  connectedClients;
    
-  //TCP
+       
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
+   
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
-   
-   //
-   public Vector<String> msgStack = new Vector<String>();
-   //Booleans keeping track of  if each thread has sent out the message to all connected clients
-   public boolean tcpBool = false;
-   public boolean udpBool = false;
   
    String timeStamp;
    
@@ -144,8 +139,6 @@ public class ChatServer{
             // Determine what kind of object we got
                if(obj instanceof String){
                   message = (String)obj;
-                  System.out.println("TCP message:" + message);
-                  addToStack( message.toString() );
                
                //sends the message to all the clients
                
@@ -153,16 +146,8 @@ public class ChatServer{
                      ObjectOutputStream temp = clients.get(i);
                      try{
                         System.out.println("Size: " +clients.size() +" Trying to send to client# "  + i);
-                        temp.writeObject("("+timeStamp+ ") " + getIP(cs) + ": " + getBottomOfStack() );
+                        temp.writeObject("("+timeStamp+ ") " + getIP(cs) + ": " + message);
                         temp.flush();
-                        if( i == (clients.size() -1 ) ){
-                           tcpBool = false;
-                           removeFromStack();
-                           if( stackFilled() ){
-                              tcpBool = true;
-                              udpBool = true;
-                           }
-                        }
                      }
                      catch(IOException ioe){
                         System.out.println("Client Disconnected #"  + i);
@@ -220,17 +205,15 @@ public class ChatServer{
                      connectedClients.add( currentClient );
                      clientIPs.add( currentClientIP );
                      clientPorts.add( currentClientPort );
-                     //System.out.println( "Added new client | " + currentClient  );
+                     System.out.println( "Added new client | " + currentClient  );
                   }
                   
                String outgoingMsg = newTimeStamp + currentClientIP.toString() + " : " + receivedMsg;
-               System.out.println("UDP outgoingMsg: " +outgoingMsg);
-               addToStack( outgoingMsg );
                
                //Convert to bytes
-               byte[] outgoingByte = ( getBottomOfStack() ).getBytes();
+               byte[] outgoingByte = ( outgoingMsg ).getBytes();
                
-               //System.out.println("... About to send out message: " + getBottomOfStack() + "\n");
+               System.out.println("... About to send out message: " + outgoingMsg + "\n");
                
                //For every client connected
                for( int i=0; i < clientIPs.size(); i++ ){
@@ -249,19 +232,10 @@ public class ChatServer{
                   //send message out
                   udpSocket.send( udpPacket );
                   
-                  if( i == (clientIPs.size() -1 ) ){
-                     udpBool = false;
-                     removeFromStack();
-                       if( stackFilled() ){
-                         tcpBool = true;
-                         udpBool = true;
-                       }
-                  }
-                  
-                  //System.out.println("Message sent to client #" + i );
+                  System.out.println("Message sent to client #" + i );
                }//end of for
                
-               //System.out.println("\nSuccessfully sent message to all Clients!\n\n");
+               System.out.println("\nSuccessfully sent message to all Clients!\n\n");
               
                
             }//end of try
@@ -293,43 +267,5 @@ public class ChatServer{
       ip = ip.substring(1,ip.length());
    
       return ip;
-   }
-   
-   public boolean stackFilled(){
-      if( msgStack.size() > 1 ){
-         return true;
-      }
-      else{
-         return false;
-     }
-   } 
-   
-   /**
-    **
-    **@param message, A String to added the message Stack
-    **/   
-    public void addToStack( String message ){
-      tcpBool = true;
-      udpBool = true;
-      System.out.println("added to Stack: " + message);
-      msgStack.add( message );
-    } 
-    
-    /*
-     *Removes firsts   (1, 2)
-     */
-    public void removeFromStack(){
-     // if(tcpBool == false && udpBool == false){
-         msgStack.remove( msgStack.get( 0 ) );
-     // }
-    }
-    
-    /**
-    *@return String, the the msg at the bottom of the stack
-    */
-    public String getBottomOfStack(){
-      return msgStack.get(0);
-    }
-    
-                                            
+   }                                            
 }//end of chat server class

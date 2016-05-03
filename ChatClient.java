@@ -5,8 +5,8 @@ import java.net.*;
 import java.io.*;
 
 /**
-Dev by: Ryan Mason, Chris Dumlao
-due Date: 5/2/146
+@author: Ryan Mason, Chris Dumlao
+due Date: 5/2/16
 Title: Chat Client
 This client will be used to send messages to the server and receive them.
 ****IMPORTANT YOU NEED TO PUT THE IP OF THE COMPUTER THAT YOU ARE RUNNING THE SERVER ON****
@@ -27,9 +27,6 @@ public class ChatClient{
    JFrame frame = new JFrame("Network Protocol");
    String protocol = null;
    String senderMsg = "";
-
-   
-   
    DatagramSocket socket = null;
         
    public ChatClient(){
@@ -45,7 +42,6 @@ public class ChatClient{
          null,     //do not use a custom Icon
          options,  //the titles of buttons
          options[0]); //default button title
-    
     
       HOST = JOptionPane.showInputDialog("Please enter the server's IP address: \nDefaults to localHost");
       
@@ -109,9 +105,6 @@ public class ChatClient{
             os = s.getOutputStream();
             
             sendButton.setEnabled(true);            
-         
-         
-         
          }
          //Exceptions
          catch(UnknownHostException ukh){
@@ -125,16 +118,12 @@ public class ChatClient{
             socket = new DatagramSocket();
          }
          catch(SocketException se){}
-       
-         
+
          Thread r = new Thread(new MessageReceiver(socket));
          Thread s = new Thread(new MessageSender(socket,HOST));
       
          r.start(); 
          s.start();
-         
-      //append("Send Message to connect...");
-      
          
          sendButton.setEnabled(true);            
       }
@@ -186,7 +175,6 @@ public class ChatClient{
                      else if(protocol.equals("udp") ){
                         senderMsg = INPUT.getText();
                      
-                     //System.out.println("about to send" + senderMsg);
                         try{ 
                            byte buf[] = senderMsg.getBytes();
                            InetAddress address = InetAddress.getByName(HOST);
@@ -195,13 +183,9 @@ public class ChatClient{
                         }
                         catch(Exception e){
                            append("Cannot Connect...");
-                        
                         }
-                        //ySystem.out.println("SenderMessage: " + senderMsg);
-                         
-                        INPUT.setText("");
-                     
-                                                
+                        //reset textfield
+                        INPUT.setText("");                        
                      }//end of if else(udp)   
                   }//End of else
                }//end of Action Performed
@@ -215,26 +199,19 @@ public class ChatClient{
                }
             });
             
-      try{
-          
-      
-      
+      try{  
          // Create output stream
          out = new ObjectOutputStream(os);
       
          // Create input stream
          is = s.getInputStream();
-         ois = new ObjectInputStream(is); 
-         //System.out.println("Input Stream Creat");      
+         ois = new ObjectInputStream(is);     
       
          Object obj;
-      
-      
-         //byte[] receiveData =  new byte[1024]; 
+
          while(true){
             obj = ois.readObject();
-            append(obj.toString());
-               
+            append(obj.toString());     
          }
       
       }
@@ -257,7 +234,7 @@ public class ChatClient{
    
   /**
    *Appends string to the chat window
-   *@String s - string to be appended to the window
+   *@param s - String to be appended to the window
    */
    public void append(String s)
    {
@@ -266,28 +243,42 @@ public class ChatClient{
       panel.scrollRectToVisible(LOG.getBounds());
       LOG.setCaretPosition(LOG.getText().length());
    } 
-   
-   
-   
-   
-
-   
+   /**Thread that will send message over UDP
+    *
+    */ 
    class MessageSender implements Runnable {
+   
       public DatagramSocket sock;
       public String hostname = "localhost";
+      
+      /**Constructor 
+       *@param s - a DatagramSocket
+       *@param h - a String
+       */
       public MessageSender(DatagramSocket s, String h) {
          sock = s;
          hostname = h;
       }
-      public void sendMessage(String s) throws Exception {
-         
-         //System.out.println("Inside sendMessage()");
       
-         byte buf[] = s.getBytes();
-         InetAddress address = InetAddress.getByName(hostname);
-         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
-         sock.send(packet);
+      /**
+       * Sends message via UDP protocol. Accepts a String
+       *@param s - String of a message to be sent
+       */
+      public void sendMessage(String s){
+         try{
+            byte buf[] = s.getBytes();
+            InetAddress address = InetAddress.getByName(hostname);
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
+            sock.send(packet);
+         }
+         catch(UnknownHostException uhe){
+            System.out.println(uhe.getMessage());
+         }
+         catch(IOException ioe){
+            System.out.println(ioe.getMessage());
+         }
       }
+      
          
       public void run() {
          boolean connected = false;
@@ -309,19 +300,25 @@ public class ChatClient{
             } 
             catch(Exception e) {
                System.err.println(e);
-               
             }
          }
       }
    }
    
+   /**Thread that is always open for receiving messages via UDP
+    *
+    */
    class MessageReceiver implements Runnable {
       DatagramSocket sock;
       byte buf[];
+      /**
+       *@param s - DatagramSocket
+       */
       MessageReceiver(DatagramSocket s) {
          sock = s;
          buf = new byte[1024];
       }
+      
       public void run() {
          while (true) {
             try {
@@ -335,7 +332,7 @@ public class ChatClient{
                System.err.println(e);
             }
          }
-      }
-   }
+      }//end of run
+   }//end of ClassMessageReceiver 
 }
 

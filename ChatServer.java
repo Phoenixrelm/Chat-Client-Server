@@ -7,8 +7,7 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 
 /**
-Dev by: Ryan Mason, Arther Burgin, Chris Dumlao, Bre Dionne
-due Date: 4/4/14
+@author: Ryan Mason, Chris Dumlao
 Title: Chat Server
 This Server will be used to receive messages from the client and then send it to all other clients.
 */
@@ -17,36 +16,39 @@ public class ChatServer{
    final int PORT = 16789;
    ServerSocket ss = null;
    Object message;
-   //server
-   public DatagramSocket udpSocket;
-   public ArrayList<InetAddress> clientIPs;
-   public ArrayList<Integer>   clientPorts;
-   public HashSet<String>  connectedClients;
+   //UDP 
+   public DatagramSocket udpSocket; // Socket open for UDP
+   public ArrayList<InetAddress> clientIPs; //List of IP addresses communicating via UDP
+   public ArrayList<Integer>   clientPorts; //List of Ports used for communicating via UDP
+   public HashSet<String>  connectedClients;//List of Unique clients connected and communicating on our server 
+                                            //Each item is a unqiue String composed of an IP address and a Port 
    
-       
+   //TCP What are these doing?
    public Vector<ClientThread> ctVector = new Vector<ClientThread>();
-   
    public Vector<ObjectOutputStream> clients = new Vector<ObjectOutputStream>();
    public Vector<Socket> sockets = new Vector<Socket>();
   
    String timeStamp;
    
+   /**Default Constructor
+    *on instatiation creates GUI, and starts two threads.
+    *One handling TCP communication and the other handling UDP communication.
+    *
+    */
    public ChatServer(){
          
      //server GUI
       JFrame window = new JFrame();
       JPanel middle = new JPanel(new GridLayout(1,1));
-     
       JLabel jtField = new  JLabel(); 
-   
-   
-      try  {
+      //Add the IP of the machine hosting the server to the GUI
+      try{
          jtField.setText("This IP is: "+ InetAddress.getLocalHost());
       }
-      
       catch(UnknownHostException uhe){
          System.err.println(uhe.getMessage());
-      }   
+      }
+         
       middle.add(jtField);
       window.add(middle);
       window.setVisible(true);
@@ -55,37 +57,29 @@ public class ChatServer{
       window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       //end of gui
      
-     //CREATE THEADS FOR TCP AND UDP 
-     
-     //Create two threads
-     //Create serverSocket in one
-     //Create DatagramSocket in other
-     
-     //Execute code 
-     
-     //While true accept incoming 
-     
+     //Accept incoming 
       try{
-         //tcp
-         ss = new ServerSocket(PORT);    
-         //datagramSocket = new DatagramSocket(PORT);             
-           
+         //TCP Server Socket
+         ss = new ServerSocket(PORT);                
          Socket cs = null;
          String ip;
-         //udp
-          udpSocket = new DatagramSocket( PORT );
-          clientIPs = new ArrayList();
-          clientPorts = new ArrayList();
-          connectedClients = new HashSet();
+         
+         //UDP
+         udpSocket = new DatagramSocket( PORT );
+         clientIPs = new ArrayList();
+         clientPorts = new ArrayList();
+         connectedClients = new HashSet();
          
          // waits for client to connect, starts thread, adds to client Vector
-      
          while(true){
            
+           //Start thread that will handle UDP Communcation
             UDPThread udpThread = new UDPThread();
             udpThread.start();
-                     System.out.println("Waiting for TCP Client .accept");      
+            System.out.println("Waiting for TCP Client .accept");      
 
+            //Accept communication on out socket
+            //Start thread that will handle TCP Communication
             cs = ss.accept();   
             System.out.println("SS.accept");      
             ClientThread ct = new ClientThread(cs);
@@ -106,15 +100,20 @@ public class ChatServer{
       ChatServer cs = new ChatServer();
    }
 
-  //Thread for Communication
+  /**Thread for TCP Communication
+   *Thread listens for incoming messages
+   *and sends out message to all clients
+   */
    class ClientThread extends Thread {
       
       Socket cs;
-      
+      /**Constructor
+       *@param cs - Socket 
+       */
       public ClientThread(Socket cs){
          this.cs = cs;
       }
-       
+        
       public void run() {
          
          OutputStream os;
@@ -127,6 +126,7 @@ public class ChatServer{
             os = cs.getOutputStream();
             out = new ObjectOutputStream(os); 
             
+            //add objectoutput stream of to array
             clients.add(out);
             Object obj;
                      
@@ -136,38 +136,50 @@ public class ChatServer{
                // read the objects from ois to obj
                obj = ois.readObject(); 
             
-            // Determine what kind of object we got
+            //Determine what kind of object we got
+            //if object is a string
                if(obj instanceof String){
                   message = (String)obj;
                
                //sends the message to all the clients
-               
+               //iterates through array of clients connected
                   for(int i=0; i < clients.size(); i++){
+                     //get output stream of current iteration
                      ObjectOutputStream temp = clients.get(i);
                      try{
+                        //Printing out to server console how many clients connected and which client is
+                        //about to receive a message
                         System.out.println("Size: " +clients.size() +" Trying to send to client# "  + i);
-                        temp.writeObject("("+timeStamp+ ") " + getIP(cs) + ": " + message);
+                        
+                        //Write message out to the current iterations outputstream
+                        temp.writeObject("["+getCurrentTime()+ "] IP:" + getIP(cs) + ": " + message);
+                        //flush output stream memory
                         temp.flush();
                      }
                      catch(IOException ioe){
+                        //If failed to write to outputstream
+                        //remove that outputstream
                         System.out.println("Client Disconnected #"  + i);
-                        clients.remove(i);
-                        
+                        clients.remove(i);  
                      }         
                   }//end of for loop 
                }         
             }
          }//end of try
-         
          catch(ClassNotFoundException CNFE){
+            System.exit(0);
          }
-         catch(IOException ioe){       
+         catch(IOException ioe){
+            System.exit(0);       
          } 
                                                  
       }//end of run   
-   }//end of tcp thread
+   }//end of tcp thread class
    
-   //Thread for UDP communication
+   /**Thread for UDP Communication
+   *Thread listens for incoming messages
+   *and sends out message to all clients
+   */
    class UDPThread extends Thread { 
    
       //Buffer
@@ -208,7 +220,7 @@ public class ChatServer{
                      System.out.println( "Added new client | " + currentClient  );
                   }
                   
-               String outgoingMsg = newTimeStamp + currentClientIP.toString() + " : " + receivedMsg;
+               String outgoingMsg = "["+newTimeStamp+"] IP:" + currentClientIP.toString() + " : " + receivedMsg;
                
                //Convert to bytes
                byte[] outgoingByte = ( outgoingMsg ).getBytes();
@@ -249,7 +261,8 @@ public class ChatServer{
    }//end of UDP thread
    
    /**
-    *@return time - the current time as a String
+    * Returns the current time as a String
+    *@return String time - the current time as a String
     */
    public String getCurrentTime(){
       String time = 
@@ -259,8 +272,8 @@ public class ChatServer{
     
    /**
     * Returns an IP as a String
-    *@param Socket s 
-    *@return ip - the requested IP
+    *@param s - Socket
+    *@return ip -  String of the requested IP
     */
    public String getIP(Socket s){
       String ip = s.getInetAddress().toString();

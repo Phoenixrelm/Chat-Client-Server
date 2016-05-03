@@ -144,7 +144,7 @@ public class ChatServer{
             // Determine what kind of object we got
                if(obj instanceof String){
                   message = (String)obj;
-                  
+                  System.out.println("TCP message:" + message);
                   addToStack( message.toString() );
                
                //sends the message to all the clients
@@ -224,7 +224,7 @@ public class ChatServer{
                   }
                   
                String outgoingMsg = newTimeStamp + currentClientIP.toString() + " : " + receivedMsg;
-               
+               System.out.println("UDP outgoingMsg: " +outgoingMsg);
                addToStack( outgoingMsg );
                
                //Convert to bytes

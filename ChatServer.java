@@ -7,8 +7,7 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 
 /**
-@author: Ryan Mason, Chris Dumlao
-Title: Chat Server
+@author: Ryan Mason, Chris Title: Chat Server
 This Server will be used to receive messages from the client and then send it to all other clients.
 */
 
